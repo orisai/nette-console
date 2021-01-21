@@ -2,6 +2,7 @@
 
 namespace Tests\OriNette\Console\Unit\DI;
 
+use OriNette\Console\Command\DIParametersCommand;
 use OriNette\Console\DI\LazyCommandLoader;
 use OriNette\DI\Boot\ManualConfigurator;
 use PHPUnit\Framework\TestCase;
@@ -39,6 +40,8 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertTrue($application->areExceptionsCaught());
 
 		self::assertSame([], array_keys($application->all('tests')));
+
+		self::assertInstanceOf(DIParametersCommand::class, $application->get('di:parameters'));
 	}
 
 	public function testFull(): void

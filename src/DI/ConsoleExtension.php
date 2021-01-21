@@ -7,6 +7,7 @@ use Nette\DI\ContainerBuilder;
 use Nette\DI\Definitions\ServiceDefinition;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
+use OriNette\Console\Command\DIParametersCommand;
 use stdClass;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -48,6 +49,7 @@ final class ConsoleExtension extends CompilerExtension
 		$config = $this->config;
 
 		$this->registerApplication($config, $builder, $this->registerCommandLoader($builder));
+		$this->registerDIParametersCommand($builder);
 	}
 
 	private function registerCommandLoader(ContainerBuilder $builder): ServiceDefinition
@@ -78,6 +80,12 @@ final class ConsoleExtension extends CompilerExtension
 		if ($config->version !== null) {
 			$applicationDefinition->addSetup('setVersion', [$config->version]);
 		}
+	}
+
+	private function registerDIParametersCommand(ContainerBuilder $builder): void
+	{
+		$builder->addDefinition($this->prefix('command.diParameters'))
+			->setFactory(DIParametersCommand::class);
 	}
 
 	public function beforeCompile(): void
