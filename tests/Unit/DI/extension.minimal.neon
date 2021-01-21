@@ -1,0 +1,2 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
