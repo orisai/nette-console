@@ -1,0 +1,20 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+
+console:
+	name: Name
+	version: Version
+	catchExceptions: false
+
+services:
+	command.lazy:
+		factory: Tests\OriNette\Console\Doubles\LazyCommand
+	command.lazy.tagged:
+		factory: Tests\OriNette\Console\Doubles\LazyCommand
+		tags:
+			console.command: tests:lazy-tagged
+	command.notLazy.tagged:
+		factory: Tests\OriNette\Console\Doubles\NotLazyCommand
+		tags:
+			console.command: tests:notLazy-tagged
+

@@ -1,0 +1,12 @@
+services:
+	command.one: Tests\OriNette\Console\Doubles\LazyCommand
+	command.two: Tests\OriNette\Console\Doubles\LazyCommand
+	command.four: stdClass
+
+	loader:
+		factory: OriNette\Console\DI\LazyCommandLoader
+		arguments:
+			servicesMap:
+				tests:one: command.one
+				tests:two: command.two
+				tests:four: command.four
