@@ -44,6 +44,14 @@ final class DIParametersCommand extends Command
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
+		$parameters = $this->container->getParameters();
+
+		if ($parameters === []) {
+			$output->writeln('No parameters found in DIC');
+
+			return 0;
+		}
+
 		$this->printSortedParameters(
 			$output,
 			ParametersSorter::sortByType($this->container->getParameters()),
@@ -61,13 +69,21 @@ final class DIParametersCommand extends Command
 
 		foreach ($parameters as $key => $item) {
 			if (is_array($item)) {
-				$output->writeln(sprintf(
-					'%s<fg=cyan>%s</>:',
-					$spaces,
-					$key,
-				));
+				if ($item === []) {
+					$output->writeln(sprintf(
+						'%s<fg=cyan>%s</>: <fg=white>[]</>',
+						$spaces,
+						$key,
+					));
+				} else {
+					$output->writeln(sprintf(
+						'%s<fg=cyan>%s</>:',
+						$spaces,
+						$key,
+					));
 
-				$this->printSortedParameters($output, $item, $spaces . '  ');
+					$this->printSortedParameters($output, $item, $spaces . '  ');
+				}
 			} else {
 				$output->writeln(sprintf(
 					'%s<fg=cyan>%s</>: %s',
