@@ -109,14 +109,14 @@ final class DIParametersCommand extends Command
 	{
 		if (is_bool($value)) {
 			$value = $value ? 'true' : 'false';
-			$fg = 'magenta';
+			$fg = 'yellow';
 		} elseif (is_int($value) || is_float($value)) {
 			$fg = 'green';
 		} elseif (is_string($value)) {
-			$fg = 'yellow';
+			$fg = 'white';
 		} elseif ($value === null) {
 			$value = 'null';
-			$fg = 'white';
+			$fg = 'magenta';
 		} else {
 			$value = is_object($value) ? get_class($value) : 'Unknown';
 			$fg = 'red';
