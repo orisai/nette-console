@@ -16,12 +16,13 @@ use function ksort;
 final class ParametersSorter
 {
 
-	private const TYPE_ARRAY = 'array';
-	private const TYPE_BOOL = 'bool';
-	private const TYPE_NUMBER = 'number';
-	private const TYPE_STRING = 'string';
-	private const TYPE_NULL = 'null';
-	private const TYPE_OTHER = 'other';
+	private const
+		TYPE_ARRAY = 'array',
+		TYPE_BOOL = 'bool',
+		TYPE_NUMBER = 'number',
+		TYPE_STRING = 'string',
+		TYPE_NULL = 'null',
+		TYPE_OTHER = 'other';
 
 	/**
 	 * @param array<mixed> $parameters
