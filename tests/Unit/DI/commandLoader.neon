@@ -6,7 +6,7 @@ services:
 	loader:
 		factory: OriNette\Console\DI\LazyCommandLoader
 		arguments:
-			servicesMap:
+			serviceMap:
 				tests:one: command.one
 				tests:two: command.two
 				tests:four: command.four
