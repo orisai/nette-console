@@ -75,7 +75,13 @@ final class LazyCommandLoaderTest extends TestCase
 		self::assertTrue($loader->has('tests:four'));
 
 		$this->expectException(InvalidArgument::class);
-		$this->expectExceptionMessage('Class stdClass is not a subclass of Symfony\Component\Console\Command\Command.');
+		$this->expectExceptionMessage(<<<'MSG'
+Context: Service command.four returns instance of stdClass.
+Problem: OriNette\Console\DI\LazyCommandLoader supports only instances of
+         Symfony\Component\Console\Command\Command.
+Solution: Remove service from LazyCommandLoader or make the service return
+          supported object type.
+MSG);
 
 		$loader->get('tests:four');
 	}
