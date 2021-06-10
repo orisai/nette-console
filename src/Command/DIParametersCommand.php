@@ -116,7 +116,7 @@ final class DIParametersCommand extends Command
 			$fg = 'white';
 		} elseif ($value === null) {
 			$value = 'null';
-			$fg = 'magenta';
+			$fg = 'yellow';
 		} else {
 			$value = is_object($value) ? get_class($value) : 'Unknown';
 			$fg = 'red';
