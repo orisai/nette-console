@@ -6,9 +6,14 @@ console:
 	name: Name
 	version: Version
 	catchExceptions: false
+	di:
+		parameters:
+			backup: true
 
 di:
 	export:
+		parameters: false
+		tags: false
 		types: false
 
 services:

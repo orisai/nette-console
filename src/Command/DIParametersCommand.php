@@ -25,10 +25,20 @@ final class DIParametersCommand extends Command
 
 	private Container $container;
 
-	public function __construct(Container $container)
+	private bool $exportHint;
+
+	/** @var array<mixed>|null */
+	private ?array $parameters;
+
+	/**
+	 * @param array<mixed>|null $parameters
+	 */
+	public function __construct(Container $container, bool $exportHint, ?array $parameters = null)
 	{
 		parent::__construct();
 		$this->container = $container;
+		$this->exportHint = $exportHint;
+		$this->parameters = $parameters;
 	}
 
 	public static function getDefaultName(): string
@@ -44,17 +54,24 @@ final class DIParametersCommand extends Command
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
-		$parameters = $this->container->getParameters();
+		$parameters = $this->parameters ?? $this->container->getParameters();
 
 		if ($parameters === []) {
-			$output->writeln('No parameters found in DIC');
+			$output->writeln('No parameters found in DI container.');
+
+			if ($this->exportHint) {
+				$output->writeln(
+					'Export of parameters into DIC is disabled.' .
+					' You may enable it for only this command by setting console extension option `di > parameters > backup` to `true`',
+				);
+			}
 
 			return 0;
 		}
 
 		$this->printSortedParameters(
 			$output,
-			ParametersSorter::sortByType($this->container->getParameters()),
+			ParametersSorter::sortByType($parameters),
 		);
 
 		return 0;
