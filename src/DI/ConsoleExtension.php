@@ -5,6 +5,7 @@ namespace OriNette\Console\DI;
 use Nette\DI\CompilerExtension;
 use Nette\DI\ContainerBuilder;
 use Nette\DI\Definitions\ServiceDefinition;
+use Nette\DI\Extensions\DIExtension;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
 use OriNette\Console\Command\DIParametersCommand;
@@ -24,6 +25,9 @@ final class ConsoleExtension extends CompilerExtension
 
 	public const COMMAND_TAG = 'console.command';
 
+	/** @var array<mixed> */
+	private array $parameters;
+
 	public function getConfigSchema(): Schema
 	{
 		return Expect::structure([
@@ -38,6 +42,11 @@ final class ConsoleExtension extends CompilerExtension
 				Expect::float(),
 				Expect::null(),
 			)->default(null),
+			'di' => Expect::structure([
+				'parameters' => Expect::structure([
+					'backup' => Expect::bool(false),
+				]),
+			]),
 		]);
 	}
 
@@ -86,6 +95,8 @@ final class ConsoleExtension extends CompilerExtension
 
 	private function registerDIParametersCommand(ContainerBuilder $builder): void
 	{
+		$this->parameters = $builder->parameters;
+
 		$builder->addDefinition($this->prefix('command.diParameters'))
 			->setFactory(DIParametersCommand::class);
 	}
@@ -95,11 +106,13 @@ final class ConsoleExtension extends CompilerExtension
 		parent::beforeCompile();
 
 		$builder = $this->getContainerBuilder();
+		$config = $this->config;
 
 		$applicationDefinition = $builder->getDefinition($this->prefix('application'));
 		assert($applicationDefinition instanceof ServiceDefinition);
 
 		$this->addCommandsToApplication($applicationDefinition, $builder);
+		$this->configureDIParametersCommand($config, $builder);
 	}
 
 	private function addCommandsToApplication(ServiceDefinition $applicationDefinition, ContainerBuilder $builder): void
@@ -154,6 +167,39 @@ final class ConsoleExtension extends CompilerExtension
 		}
 
 		return null;
+	}
+
+	private function configureDIParametersCommand(stdClass $config, ContainerBuilder $builder): void
+	{
+		$commandDefinition = $builder->getDefinition($this->prefix('command.diParameters'));
+		assert($commandDefinition instanceof ServiceDefinition);
+
+		$exportIsDisabled = $this->isParametersExportDisabled($builder);
+		$backup = $config->di->parameters->backup === true;
+
+		$commandDefinition->setArgument('exportHint', $exportIsDisabled && !$backup);
+
+		if ($exportIsDisabled && $backup) {
+			$commandDefinition->setArgument('parameters', $this->parameters);
+		}
+	}
+
+	private function isParametersExportDisabled(ContainerBuilder $builder): bool
+	{
+		if ($this->parameters !== []) {
+			if ($builder->parameters === []) {
+				return true;
+			}
+
+			foreach ($this->compiler->getExtensions(DIExtension::class) as $extension) {
+				$extensionConfig = (object) $extension->config;
+				if (!$extensionConfig->export->parameters) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 }
