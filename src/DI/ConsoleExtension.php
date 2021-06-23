@@ -80,6 +80,8 @@ final class ConsoleExtension extends CompilerExtension
 		if ($config->version !== null) {
 			$applicationDefinition->addSetup('setVersion', [$config->version]);
 		}
+
+		$this->compiler->addExportedType(Application::class);
 	}
 
 	private function registerDIParametersCommand(ContainerBuilder $builder): void

@@ -1,10 +1,15 @@
 extensions:
 	console: OriNette\Console\DI\ConsoleExtension
+	di: Nette\DI\Extensions\DIExtension
 
 console:
 	name: Name
 	version: Version
 	catchExceptions: false
+
+di:
+	export:
+		types: false
 
 services:
 	command.lazy:
