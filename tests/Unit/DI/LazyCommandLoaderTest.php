@@ -4,7 +4,7 @@ namespace Tests\OriNette\Console\Unit\DI;
 
 use OriNette\Console\DI\LazyCommandLoader;
 use OriNette\DI\Boot\ManualConfigurator;
-use Orisai\Exceptions\Logic\InvalidArgument;
+use OriNette\DI\Services\MissingService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Tests\OriNette\Console\Doubles\LazyCommand;
@@ -74,7 +74,7 @@ final class LazyCommandLoaderTest extends TestCase
 
 		self::assertTrue($loader->has('tests:four'));
 
-		$this->expectException(InvalidArgument::class);
+		$this->expectException(MissingService::class);
 		$this->expectExceptionMessage(<<<'MSG'
 Context: Service command.four returns instance of stdClass.
 Problem: OriNette\Console\DI\LazyCommandLoader supports only instances of
