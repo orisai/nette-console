@@ -4,7 +4,6 @@ namespace Tests\OriNette\Console\Unit\DI;
 
 use OriNette\Console\DI\LazyCommandLoader;
 use OriNette\DI\Boot\ManualConfigurator;
-use OriNette\DI\Services\MissingService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Tests\OriNette\Console\Doubles\LazyCommand;
@@ -30,7 +29,6 @@ final class LazyCommandLoaderTest extends TestCase
 			[
 				'tests:one',
 				'tests:two',
-				'tests:four',
 			],
 			$loader->getNames(),
 		);
@@ -60,30 +58,6 @@ final class LazyCommandLoaderTest extends TestCase
 		$this->expectExceptionMessage('Command tests:three not found.');
 
 		$loader->get('tests:three');
-	}
-
-	public function testNotACommand(): void
-	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
-		$configurator->addConfig(__DIR__ . '/commandLoader.neon');
-
-		$container = $configurator->createContainer();
-
-		$loader = $container->getByType(LazyCommandLoader::class);
-
-		self::assertTrue($loader->has('tests:four'));
-
-		$this->expectException(MissingService::class);
-		$this->expectExceptionMessage(<<<'MSG'
-Context: Service command.four returns instance of stdClass.
-Problem: OriNette\Console\DI\LazyCommandLoader supports only instances of
-         Symfony\Component\Console\Command\Command.
-Solution: Remove service from LazyCommandLoader or make the service return
-          supported object type.
-MSG);
-
-		$loader->get('tests:four');
 	}
 
 }
