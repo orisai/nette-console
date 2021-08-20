@@ -8,7 +8,7 @@ final class LazyCommand extends Command
 {
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
 	 */
