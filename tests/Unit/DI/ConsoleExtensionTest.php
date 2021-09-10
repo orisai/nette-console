@@ -7,9 +7,16 @@ use OriNette\Console\DI\LazyCommandLoader;
 use OriNette\DI\Boot\ManualConfigurator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface as ComponentEventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcher;
 use Tests\OriNette\Console\Doubles\LazyCommand;
 use Tests\OriNette\Console\Doubles\NotLazyCommand;
 use function array_keys;
+use function assert;
 use function dirname;
 
 final class ConsoleExtensionTest extends TestCase
@@ -79,6 +86,36 @@ final class ConsoleExtensionTest extends TestCase
 			'tests:lazy-tagged',
 			'tests:notLazy-tagged',
 		], array_keys($application->all('tests')));
+	}
+
+	public function testEventDispatcher(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.eventDispatcher.neon');
+
+		$container = $configurator->createContainer();
+
+		$application = $container->getByType(Application::class);
+		self::assertInstanceOf(Application::class, $application);
+
+		$dispatcher = $container->getByType(ContractsEventDispatcher::class);
+		assert($dispatcher instanceof ComponentEventDispatcher);
+
+		$command = null;
+		$dispatcher->addListener(
+			ConsoleEvents::COMMAND,
+			static function (ConsoleCommandEvent $event) use (&$command): void {
+				$command = $event->getCommand();
+			},
+		);
+
+		$application->run(
+			new ArrayInput(['command' => LazyCommand::getDefaultName()]),
+			new NullOutput(),
+		);
+
+		self::assertInstanceOf(LazyCommand::class, $command);
 	}
 
 }

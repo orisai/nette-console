@@ -1,0 +1,6 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+
+services:
+	- Symfony\Component\EventDispatcher\EventDispatcher
+	- Tests\OriNette\Console\Doubles\LazyCommand

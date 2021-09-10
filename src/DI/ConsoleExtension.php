@@ -13,6 +13,7 @@ use stdClass;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function assert;
 use function is_a;
 use function is_string;
@@ -113,6 +114,7 @@ final class ConsoleExtension extends CompilerExtension
 
 		$this->addCommandsToApplication($applicationDefinition, $builder);
 		$this->configureDIParametersCommand($config, $builder);
+		$this->setDispatcher($applicationDefinition, $builder);
 	}
 
 	private function addCommandsToApplication(ServiceDefinition $applicationDefinition, ContainerBuilder $builder): void
@@ -200,6 +202,19 @@ final class ConsoleExtension extends CompilerExtension
 		}
 
 		return false;
+	}
+
+	private function setDispatcher(ServiceDefinition $applicationDefinition, ContainerBuilder $builder): void
+	{
+		$dispatcherName = $builder->getByType(EventDispatcherInterface::class);
+
+		if ($dispatcherName === null) {
+			return;
+		}
+
+		$applicationDefinition->addSetup('setDispatcher', [
+			$builder->getDefinition($dispatcherName),
+		]);
 	}
 
 }
