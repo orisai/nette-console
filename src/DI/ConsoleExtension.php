@@ -29,6 +29,12 @@ final class ConsoleExtension extends CompilerExtension
 	/** @var array<mixed> */
 	private array $parameters;
 
+	private ServiceDefinition $applicationDefinition;
+
+	private ServiceDefinition $commandLoaderDefinition;
+
+	private ServiceDefinition $diParametersCommandDefinition;
+
 	public function getConfigSchema(): Schema
 	{
 		return Expect::structure([
@@ -58,25 +64,25 @@ final class ConsoleExtension extends CompilerExtension
 		$builder = $this->getContainerBuilder();
 		$config = $this->config;
 
-		$this->registerApplication($config, $builder, $this->registerCommandLoader($builder));
+		$this->registerApplication($this->registerCommandLoader($builder), $config, $builder);
 		$this->registerDIParametersCommand($builder);
 	}
 
 	private function registerCommandLoader(ContainerBuilder $builder): ServiceDefinition
 	{
-		return $builder->addDefinition($this->prefix('commandLoader'))
+		return $this->commandLoaderDefinition = $builder->addDefinition($this->prefix('commandLoader'))
 			->setFactory(LazyCommandLoader::class)
 			->setType(CommandLoaderInterface::class)
 			->setAutowired(false);
 	}
 
 	private function registerApplication(
+		ServiceDefinition $commandLoaderDefinition,
 		stdClass $config,
-		ContainerBuilder $builder,
-		ServiceDefinition $commandLoaderDefinition
+		ContainerBuilder $builder
 	): void
 	{
-		$applicationDefinition = $builder->addDefinition($this->prefix('application'))
+		$this->applicationDefinition = $applicationDefinition = $builder->addDefinition($this->prefix('application'))
 			->setFactory(Application::class)
 			->setType(Application::class)
 			->addSetup('setAutoExit', [false])
@@ -98,7 +104,7 @@ final class ConsoleExtension extends CompilerExtension
 	{
 		$this->parameters = $builder->parameters;
 
-		$builder->addDefinition($this->prefix('command.diParameters'))
+		$this->diParametersCommandDefinition = $builder->addDefinition($this->prefix('command.diParameters'))
 			->setFactory(DIParametersCommand::class);
 	}
 
@@ -109,15 +115,19 @@ final class ConsoleExtension extends CompilerExtension
 		$builder = $this->getContainerBuilder();
 		$config = $this->config;
 
-		$applicationDefinition = $builder->getDefinition($this->prefix('application'));
-		assert($applicationDefinition instanceof ServiceDefinition);
+		$commandLoaderDefinition = $this->commandLoaderDefinition;
+		$applicationDefinition = $this->applicationDefinition;
 
-		$this->addCommandsToApplication($applicationDefinition, $builder);
+		$this->addCommandsToApplication($commandLoaderDefinition, $applicationDefinition, $builder);
 		$this->configureDIParametersCommand($config, $builder);
 		$this->setDispatcher($applicationDefinition, $builder);
 	}
 
-	private function addCommandsToApplication(ServiceDefinition $applicationDefinition, ContainerBuilder $builder): void
+	private function addCommandsToApplication(
+		ServiceDefinition $commandLoaderDefinition,
+		ServiceDefinition $applicationDefinition,
+		ContainerBuilder $builder
+	): void
 	{
 		$commandDefinitions = $builder->findByType(Command::class);
 		$commandsMap = [];
@@ -133,8 +143,6 @@ final class ConsoleExtension extends CompilerExtension
 			}
 		}
 
-		$commandLoaderDefinition = $builder->getDefinition($this->prefix('commandLoader'));
-		assert($commandLoaderDefinition instanceof ServiceDefinition);
 		$commandLoaderDefinition->getFactory()->arguments = [$commandsMap];
 	}
 
@@ -173,8 +181,7 @@ final class ConsoleExtension extends CompilerExtension
 
 	private function configureDIParametersCommand(stdClass $config, ContainerBuilder $builder): void
 	{
-		$commandDefinition = $builder->getDefinition($this->prefix('command.diParameters'));
-		assert($commandDefinition instanceof ServiceDefinition);
+		$commandDefinition = $this->diParametersCommandDefinition;
 
 		$exportIsDisabled = $this->isParametersExportDisabled($builder);
 		$backup = $config->di->parameters->backup === true;
