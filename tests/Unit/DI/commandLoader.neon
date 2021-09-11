@@ -1,10 +1,10 @@
 services:
-	command.one: Tests\OriNette\Console\Doubles\LazyCommand
-	command.two: Tests\OriNette\Console\Doubles\LazyCommand
+	command.one: Tests\OriNette\Console\Doubles\DefaultNameCommand
+	command.two: Tests\OriNette\Console\Doubles\DefaultNameCommand
 
 	loader:
 		factory: OriNette\Console\DI\LazyCommandLoader
 		arguments:
 			serviceMap:
-				tests:one: command.one
-				tests:two: command.two
+				one: command.one
+				two: command.two

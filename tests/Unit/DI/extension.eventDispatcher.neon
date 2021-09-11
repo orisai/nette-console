@@ -3,4 +3,4 @@ extensions:
 
 services:
 	- Symfony\Component\EventDispatcher\EventDispatcher
-	- Tests\OriNette\Console\Doubles\LazyCommand
+	- Tests\OriNette\Console\Doubles\DefaultNameCommand

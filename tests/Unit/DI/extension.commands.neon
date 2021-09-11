@@ -1,0 +1,71 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+	di: Nette\DI\Extensions\DIExtension
+
+console:
+	name: Name
+	version: Version
+	catchExceptions: false
+	di:
+		parameters:
+			backup: true
+
+di:
+	export:
+		parameters: false
+		tags: false
+		types: false
+
+services:
+	command.defaultName:
+		factory: Tests\OriNette\Console\Doubles\DefaultNameCommand
+	command.bothDefault:
+		factory: Tests\OriNette\Console\Doubles\DefaultBothCommand
+
+	command.tagged:
+		factory: Tests\OriNette\Console\Doubles\DefaultNameCommand
+		tags:
+			console.command:
+				command: tagged
+				description: Fully tagged
+
+	command.tagged.description:
+		factory: Tests\OriNette\Console\Doubles\AnotherDefaultNameCommand
+		tags:
+			console.command:
+				description: Custom description
+
+	command.tagged.name.a:
+		factory: Tests\OriNette\Console\Doubles\SimpleCommand
+		tags:
+			console.command: tagged-name:a
+	command.tagged.name.b:
+		factory: Tests\OriNette\Console\Doubles\SimpleCommand
+		tags:
+			console.command:
+				command: tagged-name:b
+	command.tagged.name.c:
+		factory: Tests\OriNette\Console\Doubles\SimpleCommand
+		tags:
+			console.command:
+				name: tagged-name:c
+
+	command.hidden:
+		factory: Tests\OriNette\Console\Doubles\SimpleCommand
+		tags:
+			console.command:
+				name: |unicorn
+				description: "I am hiding so people can't hang me on their wall."
+	command.aliased:
+		factory: Tests\OriNette\Console\Doubles\SimpleCommand
+		tags:
+			console.command:
+				name: AgathaChristie|MaryWestmacott|AgathaMaryClarissaMiller
+				description: Woman of many names.
+	command.hiddenAndAliased:
+		factory: Tests\OriNette\Console\Doubles\SimpleCommand
+		tags:
+			console.command:
+				name: |pizza|kebab|quesadilla
+				description: Hidden and aliased. Also hungry.
+

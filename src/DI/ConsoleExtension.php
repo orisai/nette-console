@@ -14,8 +14,11 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function array_shift;
 use function assert;
+use function explode;
 use function is_a;
+use function is_array;
 use function is_string;
 
 /**
@@ -134,7 +137,7 @@ final class ConsoleExtension extends CompilerExtension
 		foreach ($commandDefinitions as $key => $commandDefinition) {
 			assert($commandDefinition instanceof ServiceDefinition);
 
-			$commandName = $this->getCommandName($commandDefinition);
+			$commandName = $this->configureCommand($commandDefinition);
 
 			if ($commandName !== null) {
 				$commandsMap[$commandName] = $key;
@@ -146,35 +149,34 @@ final class ConsoleExtension extends CompilerExtension
 		$commandLoaderDefinition->getFactory()->arguments = [$commandsMap];
 	}
 
-	private function getCommandName(ServiceDefinition $definition): ?string
+	private function configureCommand(ServiceDefinition $definition): ?string
 	{
-		// From tag
+		// With tag - service tag is set
 		$tag = $definition->getTag(self::COMMAND_TAG);
 		if (is_string($tag)) {
-			$definition->addSetup('setName', [$tag]);
-
-			return $tag;
+			return $this->configureCommandByName($definition, $tag);
 		}
 
 		if (is_array($tag)) {
+			$tagDescription = $tag['description'] ?? null;
+			if (is_string($tagDescription)) {
+				$definition->addSetup('setDescription', [$tagDescription]);
+			}
+
 			// symfony/console compatibility
 			$tagName = $tag['command'] ?? null;
 			if (is_string($tagName)) {
-				$definition->addSetup('setName', [$tagName]);
-
-				return $tagName;
+				return $this->configureCommandByName($definition, $tagName);
 			}
 
 			// other nette/di implementations compatibility
 			$tagName = $tag['name'] ?? null;
 			if (is_string($tagName)) {
-				$definition->addSetup('setName', [$tagName]);
-
-				return $tagName;
+				return $this->configureCommandByName($definition, $tagName);
 			}
 		}
 
-		// From type
+		// With type - service definition has `type` set
 		$type = $definition->getType();
 		if (is_string($type) && is_a($type, Command::class, true)) {
 			$commandName = $type::getDefaultName();
@@ -184,7 +186,7 @@ final class ConsoleExtension extends CompilerExtension
 			}
 		}
 
-		// From definition factory
+		// With factory - service definition has `factory` set
 		$factory = $definition->getFactory()->entity;
 		if (is_string($factory) && is_a($factory, Command::class, true)) {
 			$commandName = $factory::getDefaultName();
@@ -195,6 +197,28 @@ final class ConsoleExtension extends CompilerExtension
 		}
 
 		return null;
+	}
+
+	private function configureCommandByName(ServiceDefinition $definition, string $commandName): ?string
+	{
+		$aliases = explode('|', $commandName);
+
+		$commandName = array_shift($aliases);
+		if ($commandName === '') {
+			$hidden = true;
+			$commandName = array_shift($aliases);
+		} else {
+			$hidden = false;
+		}
+
+		$definition->addSetup('setAliases', [$aliases]);
+		$definition->addSetup('setHidden', [$hidden]);
+
+		if ($commandName !== null) {
+			$definition->addSetup('setName', [$commandName]);
+		}
+
+		return $commandName;
 	}
 
 	private function configureDIParametersCommand(stdClass $config, ContainerBuilder $builder): void

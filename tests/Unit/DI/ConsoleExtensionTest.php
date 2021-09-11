@@ -2,19 +2,23 @@
 
 namespace Tests\OriNette\Console\Unit\DI;
 
+use Generator;
 use OriNette\Console\Command\DIParametersCommand;
 use OriNette\Console\DI\LazyCommandLoader;
 use OriNette\DI\Boot\ManualConfigurator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as ComponentEventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcher;
-use Tests\OriNette\Console\Doubles\LazyCommand;
-use Tests\OriNette\Console\Doubles\NotLazyCommand;
+use Tests\OriNette\Console\Doubles\AnotherDefaultNameCommand;
+use Tests\OriNette\Console\Doubles\DefaultBothCommand;
+use Tests\OriNette\Console\Doubles\DefaultNameCommand;
+use Tests\OriNette\Console\Doubles\SimpleCommand;
 use function array_keys;
 use function assert;
 use function dirname;
@@ -51,11 +55,11 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertInstanceOf(DIParametersCommand::class, $application->get('di:parameters'));
 	}
 
-	public function testFull(): void
+	public function testConfigured(): void
 	{
 		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
 		$configurator->setDebugMode(true);
-		$configurator->addConfig(__DIR__ . '/extension.full.neon');
+		$configurator->addConfig(__DIR__ . '/extension.commands.neon');
 
 		$container = $configurator->createContainer();
 
@@ -66,38 +70,150 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertSame('Version', $application->getVersion());
 		self::assertFalse($application->areExceptionsCaught());
 
-		$lazyCommand = $application->get('tests:lazy');
-		self::assertInstanceOf(LazyCommand::class, $lazyCommand);
-		self::assertSame('tests:lazy', $lazyCommand->getName());
-		self::assertSame($lazyCommand, $container->getService('command.lazy'));
-
-		$lazyTaggedCommand = $application->get('tests:lazy-tagged');
-		self::assertInstanceOf(LazyCommand::class, $lazyTaggedCommand);
-		self::assertSame('tests:lazy-tagged', $lazyTaggedCommand->getName());
-		self::assertSame($lazyTaggedCommand, $container->getService('command.lazy.tagged'));
-
-		$notLazyTaggedCommandA = $application->get('tests:notLazy-tagged:a');
-		self::assertInstanceOf(NotLazyCommand::class, $notLazyTaggedCommandA);
-		self::assertSame('tests:notLazy-tagged:a', $notLazyTaggedCommandA->getName());
-		self::assertSame($notLazyTaggedCommandA, $container->getService('command.notLazy.tagged.a'));
-
-		$notLazyTaggedCommandB = $application->get('tests:notLazy-tagged:b');
-		self::assertInstanceOf(NotLazyCommand::class, $notLazyTaggedCommandB);
-		self::assertSame('tests:notLazy-tagged:b', $notLazyTaggedCommandB->getName());
-		self::assertSame($notLazyTaggedCommandB, $container->getService('command.notLazy.tagged.b'));
-
-		$notLazyTaggedCommandC = $application->get('tests:notLazy-tagged:c');
-		self::assertInstanceOf(NotLazyCommand::class, $notLazyTaggedCommandC);
-		self::assertSame('tests:notLazy-tagged:c', $notLazyTaggedCommandC->getName());
-		self::assertSame($notLazyTaggedCommandC, $container->getService('command.notLazy.tagged.c'));
-
 		self::assertSame([
-			'tests:lazy',
-			'tests:lazy-tagged',
-			'tests:notLazy-tagged:a',
-			'tests:notLazy-tagged:b',
-			'tests:notLazy-tagged:c',
-		], array_keys($application->all('tests')));
+			'help',
+			'list',
+			'di:parameters',
+			'default',
+			'both-default',
+			'tagged',
+			'another-default',
+			'tagged-name:a',
+			'tagged-name:b',
+			'tagged-name:c',
+			'unicorn',
+			'AgathaChristie',
+			'pizza',
+		], array_keys($application->all()));
+	}
+
+	/**
+	 * @param class-string<Command> $class
+	 * @param array<string> $aliases
+	 *
+	 * @dataProvider provideCommandConfig
+	 */
+	public function testCommandConfig(
+		string $service,
+		string $class,
+		string $name,
+		string $description,
+		array $aliases,
+		bool $hidden
+	): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.commands.neon');
+
+		$container = $configurator->createContainer();
+
+		$application = $container->getByType(Application::class);
+		self::assertInstanceOf(Application::class, $application);
+
+		$command = $application->get($name);
+		self::assertInstanceOf($class, $command);
+		self::assertSame($name, $command->getName());
+		self::assertSame($command, $container->getService($service));
+		self::assertSame($description, $command->getDescription());
+		self::assertSame($aliases, $command->getAliases());
+		self::assertSame($hidden, $command->isHidden());
+	}
+
+	/**
+	 * @return Generator<array<mixed>>
+	 */
+	public function provideCommandConfig(): Generator
+	{
+		yield [
+			'command.defaultName',
+			DefaultNameCommand::class,
+			'default',
+			'',
+			[],
+			false,
+		];
+
+		yield [
+			'command.bothDefault',
+			DefaultBothCommand::class,
+			'both-default',
+			'Default description',
+			[],
+			false,
+		];
+
+		yield [
+			'command.tagged',
+			DefaultNameCommand::class,
+			'tagged',
+			'Fully tagged',
+			[],
+			false,
+		];
+
+		yield [
+			'command.tagged.description',
+			AnotherDefaultNameCommand::class,
+			'another-default',
+			'Custom description',
+			[],
+			false,
+		];
+
+		yield [
+			'command.tagged.name.a',
+			SimpleCommand::class,
+			'tagged-name:a',
+			'',
+			[],
+			false,
+		];
+
+		yield [
+			'command.tagged.name.b',
+			SimpleCommand::class,
+			'tagged-name:b',
+			'',
+			[],
+			false,
+		];
+
+		yield [
+			'command.tagged.name.c',
+			SimpleCommand::class,
+			'tagged-name:c',
+			'',
+			[],
+			false,
+		];
+
+		yield [
+			'command.hidden',
+			SimpleCommand::class,
+			'unicorn',
+			'I am hiding so people can\'t hang me on their wall.',
+			[],
+			true,
+		];
+
+		yield [
+			'command.aliased',
+			SimpleCommand::class,
+			'AgathaChristie',
+			'Woman of many names.',
+			['MaryWestmacott', 'AgathaMaryClarissaMiller'],
+			false,
+		];
+
+		yield [
+			'command.hiddenAndAliased',
+			SimpleCommand::class,
+			'pizza',
+			'Hidden and aliased. Also hungry.',
+			['kebab', 'quesadilla'],
+			true,
+		];
 	}
 
 	public function testEventDispatcher(): void
@@ -123,11 +239,11 @@ final class ConsoleExtensionTest extends TestCase
 		);
 
 		$application->run(
-			new ArrayInput(['command' => LazyCommand::getDefaultName()]),
+			new ArrayInput(['command' => DefaultNameCommand::getDefaultName()]),
 			new NullOutput(),
 		);
 
-		self::assertInstanceOf(LazyCommand::class, $command);
+		self::assertInstanceOf(DefaultNameCommand::class, $command);
 	}
 
 }
