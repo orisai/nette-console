@@ -76,15 +76,27 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertSame('tests:lazy-tagged', $lazyTaggedCommand->getName());
 		self::assertSame($lazyTaggedCommand, $container->getService('command.lazy.tagged'));
 
-		$notLazyTaggedCommand = $application->get('tests:notLazy-tagged');
-		self::assertInstanceOf(NotLazyCommand::class, $notLazyTaggedCommand);
-		self::assertSame('tests:notLazy-tagged', $notLazyTaggedCommand->getName());
-		self::assertSame($notLazyTaggedCommand, $container->getService('command.notLazy.tagged'));
+		$notLazyTaggedCommandA = $application->get('tests:notLazy-tagged:a');
+		self::assertInstanceOf(NotLazyCommand::class, $notLazyTaggedCommandA);
+		self::assertSame('tests:notLazy-tagged:a', $notLazyTaggedCommandA->getName());
+		self::assertSame($notLazyTaggedCommandA, $container->getService('command.notLazy.tagged.a'));
+
+		$notLazyTaggedCommandB = $application->get('tests:notLazy-tagged:b');
+		self::assertInstanceOf(NotLazyCommand::class, $notLazyTaggedCommandB);
+		self::assertSame('tests:notLazy-tagged:b', $notLazyTaggedCommandB->getName());
+		self::assertSame($notLazyTaggedCommandB, $container->getService('command.notLazy.tagged.b'));
+
+		$notLazyTaggedCommandC = $application->get('tests:notLazy-tagged:c');
+		self::assertInstanceOf(NotLazyCommand::class, $notLazyTaggedCommandC);
+		self::assertSame('tests:notLazy-tagged:c', $notLazyTaggedCommandC->getName());
+		self::assertSame($notLazyTaggedCommandC, $container->getService('command.notLazy.tagged.c'));
 
 		self::assertSame([
 			'tests:lazy',
 			'tests:lazy-tagged',
-			'tests:notLazy-tagged',
+			'tests:notLazy-tagged:a',
+			'tests:notLazy-tagged:b',
+			'tests:notLazy-tagged:c',
 		], array_keys($application->all('tests')));
 	}
 

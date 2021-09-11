@@ -23,8 +23,17 @@ services:
 		factory: Tests\OriNette\Console\Doubles\LazyCommand
 		tags:
 			console.command: tests:lazy-tagged
-	command.notLazy.tagged:
+	command.notLazy.tagged.a:
 		factory: Tests\OriNette\Console\Doubles\NotLazyCommand
 		tags:
-			console.command: tests:notLazy-tagged
-
+			console.command: tests:notLazy-tagged:a
+	command.notLazy.tagged.b:
+		factory: Tests\OriNette\Console\Doubles\NotLazyCommand
+		tags:
+			console.command:
+				command: tests:notLazy-tagged:b
+	command.notLazy.tagged.c:
+		factory: Tests\OriNette\Console\Doubles\NotLazyCommand
+		tags:
+			console.command:
+				name: tests:notLazy-tagged:c

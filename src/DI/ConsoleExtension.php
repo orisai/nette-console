@@ -156,6 +156,24 @@ final class ConsoleExtension extends CompilerExtension
 			return $tag;
 		}
 
+		if (is_array($tag)) {
+			// symfony/console compatibility
+			$tagName = $tag['command'] ?? null;
+			if (is_string($tagName)) {
+				$definition->addSetup('setName', [$tagName]);
+
+				return $tagName;
+			}
+
+			// other nette/di implementations compatibility
+			$tagName = $tag['name'] ?? null;
+			if (is_string($tagName)) {
+				$definition->addSetup('setName', [$tagName]);
+
+				return $tagName;
+			}
+		}
+
 		// From type
 		$type = $definition->getType();
 		if (is_string($type) && is_a($type, Command::class, true)) {
