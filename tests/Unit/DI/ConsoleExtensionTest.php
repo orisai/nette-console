@@ -74,6 +74,7 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertSame([
 			'help',
 			'list',
+			'boring-normie',
 			'di:parameters',
 			'default',
 			'both-default',
@@ -221,6 +222,15 @@ final class ConsoleExtensionTest extends TestCase
 			'command.hiddenAndAliased.negated',
 			HiddenAndAliasedCommand::class,
 			'defaults-neutralizer',
+			'',
+			[],
+			false,
+		];
+
+		yield [
+			'command.notLazy',
+			Command::class,
+			'boring-normie',
 			'',
 			[],
 			false,

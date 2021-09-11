@@ -73,3 +73,5 @@ services:
 		tags:
 			console.command:
 				name: defaults-neutralizer
+
+	command.notLazy: Symfony\Component\Console\Command\Command('boring-normie')
