@@ -68,4 +68,8 @@ services:
 			console.command:
 				name: |pizza|kebab|quesadilla
 				description: Hidden and aliased. Also hungry.
-
+	command.hiddenAndAliased.negated:
+		factory: Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand
+		tags:
+			console.command:
+				name: defaults-neutralizer

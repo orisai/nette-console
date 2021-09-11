@@ -18,6 +18,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEvent
 use Tests\OriNette\Console\Doubles\AnotherDefaultNameCommand;
 use Tests\OriNette\Console\Doubles\DefaultBothCommand;
 use Tests\OriNette\Console\Doubles\DefaultNameCommand;
+use Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand;
 use Tests\OriNette\Console\Doubles\SimpleCommand;
 use function array_keys;
 use function assert;
@@ -84,6 +85,7 @@ final class ConsoleExtensionTest extends TestCase
 			'unicorn',
 			'AgathaChristie',
 			'pizza',
+			'defaults-neutralizer',
 		], array_keys($application->all()));
 	}
 
@@ -213,6 +215,15 @@ final class ConsoleExtensionTest extends TestCase
 			'Hidden and aliased. Also hungry.',
 			['kebab', 'quesadilla'],
 			true,
+		];
+
+		yield [
+			'command.hiddenAndAliased.negated',
+			HiddenAndAliasedCommand::class,
+			'defaults-neutralizer',
+			'',
+			[],
+			false,
 		];
 	}
 
