@@ -9,6 +9,7 @@ use OriNette\DI\Boot\ManualConfigurator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -92,7 +93,7 @@ final class ConsoleExtensionTest extends TestCase
 
 	/**
 	 * @param class-string<Command> $class
-	 * @param array<string> $aliases
+	 * @param array<string>         $aliases
 	 *
 	 * @dataProvider provideCommandConfig
 	 */
@@ -115,12 +116,21 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertInstanceOf(Application::class, $application);
 
 		$command = $application->get($name);
-		self::assertInstanceOf($class, $command);
+
 		self::assertSame($name, $command->getName());
-		self::assertSame($command, $container->getService($service));
 		self::assertSame($description, $command->getDescription());
 		self::assertSame($aliases, $command->getAliases());
 		self::assertSame($hidden, $command->isHidden());
+
+		if ($command instanceof LazyCommand) {
+			$wrappedCommand = $command->getCommand();
+			self::assertSame($command, $container->getService("console.lazy.$service"));
+			self::assertInstanceOf($class, $wrappedCommand);
+			self::assertSame($wrappedCommand, $container->getService($service));
+		} else {
+			self::assertInstanceOf($class, $command);
+			self::assertSame($command, $container->getService($service));
+		}
 	}
 
 	/**

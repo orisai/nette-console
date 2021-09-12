@@ -6,12 +6,14 @@ use Nette\DI\CompilerExtension;
 use Nette\DI\ContainerBuilder;
 use Nette\DI\Definitions\ServiceDefinition;
 use Nette\DI\Extensions\DIExtension;
+use Nette\PhpGenerator\PhpLiteral;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
 use OriNette\Console\Command\DIParametersCommand;
 use stdClass;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function array_shift;
@@ -134,91 +136,149 @@ final class ConsoleExtension extends CompilerExtension
 	{
 		$commandDefinitions = $builder->findByType(Command::class);
 		$commandsMap = [];
-		foreach ($commandDefinitions as $key => $commandDefinition) {
+		foreach ($commandDefinitions as $commandDefinition) {
 			assert($commandDefinition instanceof ServiceDefinition);
 
-			$commandName = $this->configureCommand($commandDefinition);
+			$commandConfig = $this->configureCommand($commandDefinition, $builder);
+			$processedCommandDefinition = $commandConfig[0];
+			$commandName = $commandConfig[1];
 
 			if ($commandName !== null) {
-				$commandsMap[$commandName] = $key;
+				$commandsMap[$commandName] = $processedCommandDefinition->getName();
 			} else {
-				$applicationDefinition->addSetup('add', [$commandDefinition]);
+				$applicationDefinition->addSetup('add', [$processedCommandDefinition]);
 			}
 		}
 
 		$commandLoaderDefinition->getFactory()->arguments = [$commandsMap];
 	}
 
-	private function configureCommand(ServiceDefinition $definition): ?string
+	/**
+	 * @return array{ServiceDefinition, string|null}
+	 */
+	private function configureCommand(ServiceDefinition $definition, ContainerBuilder $builder): array
 	{
-		// With tag - service tag is set
+		[$name, $description] = $this->getCommandMeta($definition);
+		[$newDefinition, $name] = $this->processCommandDefinition($definition, $name, $description, $builder);
+
+		return [$newDefinition, $name];
+	}
+
+	/**
+	 * @return array{string|null, string|null}
+	 */
+	private function getCommandMeta(ServiceDefinition $definition): array
+	{
+		$name = null;
+		$description = null;
+
+		// From factory - service definition has `factory` set
+		$factory = $definition->getFactory()->entity;
+		if (is_string($factory) && is_a($factory, Command::class, true)) {
+			$commandName = $factory::getDefaultName();
+			if ($commandName !== null) {
+				$name = $commandName;
+			}
+
+			$commandDescription = $factory::getDefaultDescription();
+			if ($commandDescription !== null) {
+				$description = $commandDescription;
+			}
+		}
+
+		// From type - service definition has `type` set
+		$type = $definition->getType();
+		if (is_string($type) && is_a($type, Command::class, true)) {
+			$commandName = $type::getDefaultName();
+			if ($commandName !== null) {
+				$name = $commandName;
+			}
+
+			$commandDescription = $type::getDefaultDescription();
+			if ($commandDescription !== null) {
+				$description = $commandDescription;
+			}
+		}
+
+		// From tag - service tag is set
 		$tag = $definition->getTag(self::COMMAND_TAG);
 		if (is_string($tag)) {
-			return $this->configureCommandByName($definition, $tag);
+			$name = $tag;
 		}
 
 		if (is_array($tag)) {
 			$tagDescription = $tag['description'] ?? null;
 			if (is_string($tagDescription)) {
-				$definition->addSetup('setDescription', [$tagDescription]);
+				$description = $tagDescription;
 			}
 
 			// symfony/console compatibility
 			$tagName = $tag['command'] ?? null;
 			if (is_string($tagName)) {
-				return $this->configureCommandByName($definition, $tagName);
+				$name = $tagName;
 			}
 
 			// other nette/di implementations compatibility
 			$tagName = $tag['name'] ?? null;
 			if (is_string($tagName)) {
-				return $this->configureCommandByName($definition, $tagName);
+				$name = $tagName;
 			}
 		}
 
-		// With type - service definition has `type` set
-		$type = $definition->getType();
-		if (is_string($type) && is_a($type, Command::class, true)) {
-			$commandName = $type::getDefaultName();
-
-			if ($commandName !== null) {
-				return $commandName;
-			}
-		}
-
-		// With factory - service definition has `factory` set
-		$factory = $definition->getFactory()->entity;
-		if (is_string($factory) && is_a($factory, Command::class, true)) {
-			$commandName = $factory::getDefaultName();
-
-			if ($commandName !== null) {
-				return $commandName;
-			}
-		}
-
-		return null;
+		return [$name, $description];
 	}
 
-	private function configureCommandByName(ServiceDefinition $definition, string $commandName): ?string
+	/**
+	 * @return array{ServiceDefinition, string|null}
+	 */
+	private function processCommandDefinition(
+		ServiceDefinition $definition,
+		?string $name,
+		?string $description,
+		ContainerBuilder $builder
+	): array
 	{
-		$aliases = explode('|', $commandName);
+		$aliases = [];
+		$hidden = false;
 
-		$commandName = array_shift($aliases);
-		if ($commandName === '') {
-			$hidden = true;
-			$commandName = array_shift($aliases);
-		} else {
-			$hidden = false;
+		if ($name !== null) {
+			$aliases = explode('|', $name);
+
+			$name = array_shift($aliases);
+			if ($name === '') {
+				$hidden = true;
+				$name = array_shift($aliases);
+			}
 		}
 
-		$definition->addSetup('setAliases', [$aliases]);
+		if ($name !== null && $description !== null) {
+			$newDefinition = $builder->addDefinition("$this->name.lazy.{$definition->getName()}")
+				->setFactory(LazyCommand::class, [
+					$name,
+					$aliases,
+					$description,
+					$hidden,
+					new PhpLiteral('fn(): ? => $this->getService(?)', [
+						new PhpLiteral(Command::class),
+						$definition->getName(),
+					]),
+				]);
+
+			return [$newDefinition, $name];
+		}
+
+		if ($name !== null) {
+			$definition->addSetup('setName', [$name]);
+		}
+
+		if ($description !== null) {
+			$definition->addSetup('setDescription', [$description]);
+		}
+
 		$definition->addSetup('setHidden', [$hidden]);
+		$definition->addSetup('setAliases', [$aliases]);
 
-		if ($commandName !== null) {
-			$definition->addSetup('setName', [$commandName]);
-		}
-
-		return $commandName;
+		return [$definition, $name];
 	}
 
 	private function configureDIParametersCommand(stdClass $config, ContainerBuilder $builder): void
