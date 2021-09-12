@@ -238,8 +238,8 @@ final class ConsoleExtension extends CompilerExtension
 		ContainerBuilder $builder
 	): array
 	{
-		$aliases = [];
-		$hidden = false;
+		$aliases = null;
+		$hidden = null;
 
 		if ($name !== null) {
 			$aliases = explode('|', $name);
@@ -248,6 +248,8 @@ final class ConsoleExtension extends CompilerExtension
 			if ($name === '') {
 				$hidden = true;
 				$name = array_shift($aliases);
+			} else {
+				$hidden = false;
 			}
 		}
 
@@ -275,8 +277,13 @@ final class ConsoleExtension extends CompilerExtension
 			$definition->addSetup('setDescription', [$description]);
 		}
 
-		$definition->addSetup('setHidden', [$hidden]);
-		$definition->addSetup('setAliases', [$aliases]);
+		if ($hidden !== null) {
+			$definition->addSetup('setHidden', [$hidden]);
+		}
+
+		if ($aliases !== null) {
+			$definition->addSetup('setAliases', [$aliases]);
+		}
 
 		return [$definition, $name];
 	}
