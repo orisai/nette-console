@@ -43,7 +43,7 @@ final class ConsoleExtension extends CompilerExtension
 	public function getConfigSchema(): Schema
 	{
 		return Expect::structure([
-			'catchExceptions' => Expect::bool(true),
+			'catchExceptions' => Expect::bool(false),
 			'name' => Expect::anyOf(
 				Expect::string(),
 				Expect::null(),

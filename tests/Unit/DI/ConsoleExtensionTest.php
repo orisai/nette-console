@@ -50,7 +50,7 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertSame('UNKNOWN', $application->getName());
 		self::assertSame('UNKNOWN', $application->getVersion());
 		self::assertFalse($application->isAutoExitEnabled());
-		self::assertTrue($application->areExceptionsCaught());
+		self::assertFalse($application->areExceptionsCaught());
 
 		self::assertSame([], array_keys($application->all('tests')));
 
@@ -70,7 +70,7 @@ final class ConsoleExtensionTest extends TestCase
 
 		self::assertSame('Name', $application->getName());
 		self::assertSame('Version', $application->getVersion());
-		self::assertFalse($application->areExceptionsCaught());
+		self::assertTrue($application->areExceptionsCaught());
 
 		self::assertSame([
 			'help',

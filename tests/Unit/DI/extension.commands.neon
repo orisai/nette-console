@@ -5,7 +5,7 @@ extensions:
 console:
 	name: Name
 	version: Version
-	catchExceptions: false
+	catchExceptions: true
 	di:
 		parameters:
 			backup: true
