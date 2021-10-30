@@ -1,7 +1,7 @@
 <h1 align="center">Orisai Nette Console</h1>
 
 <p align="center">
-    Symfony Console integration for Nette
+    <a href="https://symfony.com/doc/current/components/console.html">symfony/console</a> integration for <a href="https://nette.org">Nette</a>
 </p>
 
 <p align=center>
@@ -12,6 +12,8 @@
   <a href="https://packagist.org/packages/orisai/nette-console"><img src="https://badgen.net/packagist/v/orisai/nette-console?cache=3600"></a>
   <a href="https://choosealicense.com/licenses/mpl-2.0/"><img src="https://badgen.net/badge/license/MPL-2.0/blue?cache=3600"></a>
 <p>
+
+![list screenshot](docs/list.png)
 
 ## Documentation
 
