@@ -111,7 +111,7 @@ Console offers lazy loading of commands with which they are loaded just when use
 always instantiated to get its name and description.
 
 To enable lazy loading each command has to define **name** and **description** either as
-a [property in its definition](#writing-own-commands)
+a [property/method in its definition](#writing-own-commands)
 or [in DI service configuration](#overwriting-command-configuration).
 
 No global config option is required, our integration is able to load both lazy and not lazy commands.
@@ -217,14 +217,13 @@ services:
 ```
 
 Don't set command name, description, aliases or hidden via constructor or `set*()` methods (`setName()`, ...). It's not
-supported by lazy loading and configuration via tags and default properties will always be prioritized.
+supported by lazy loading and configuration via tags and default properties/methods will always be prioritized.
 
 Note: Syntax of aliases and hidden command matches the one from Symfony.
 
 ## Writing own commands
 
-Following example shows how to define command that is findable by `ConsoleExtension`, is lazy loaded and is compatible
-with [orisai/coding-standard-php](https://github.com/orisai/coding-standard-php) (the `@phpcsSuppress` annotations).
+Following example shows how to define command that is findable by `ConsoleExtension` and is lazy loaded.
 
 To learn about accepting input arguments and options, writing to output and else about commands,
 check [Symfony documentation](https://symfony.com/doc/current/components/console.html).
@@ -239,28 +238,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class SendNewsletterCommand extends Command
 {
 
-	/**
-	 * @var string|null
-	 *
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-	 */
-	protected static $defaultName = 'newsletter:send';
-
-	/**
-	 * @var string|null
-	 *
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-	 */
-	protected static $defaultDescription = 'Send newsletter to users';
-
 	private NewsletterSender $newsletterSender;
 
-	public function __construct(NewsletterSender $newsletterSender) {
+	public function __construct(NewsletterSender $newsletterSender)
+	{
 		parent::__construct();
 		$this->newsletterSender = $newsletterSender;
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output): int {
+	public static function getDefaultName(): string
+	{
+		return 'newsletter:send';
+	}
+
+	public static function getDefaultDescription(): ?string
+	{
+		return 'Send newsletter to users';
+	}
+
+	protected function execute(InputInterface $input, OutputInterface $output): int
+	{
 		$this->newsletterSender->send();
 
 		return self::SUCCESS;
