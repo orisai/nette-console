@@ -14,7 +14,6 @@ use function is_array;
 use function is_bool;
 use function is_float;
 use function is_int;
-use function is_object;
 use function is_string;
 use function next;
 use function prev;
@@ -61,11 +60,13 @@ final class DIParametersCommand extends Command
 			if ($this->exportHint) {
 				$output->writeln(
 					'Export of parameters into DIC is disabled.' .
-					' You may enable it for only this command by setting console extension option `di > parameters > backup` to `true`',
+					" You may enable it for only this command by setting console extension option 'di > parameters > backup' to 'true'",
 				);
+
+				return self::FAILURE;
 			}
 
-			return 0;
+			return self::SUCCESS;
 		}
 
 		$this->printSortedParameters(
@@ -73,7 +74,7 @@ final class DIParametersCommand extends Command
 			ParametersSorter::sortByType($parameters),
 		);
 
-		return 0;
+		return self::SUCCESS;
 	}
 
 	/**
@@ -91,6 +92,10 @@ final class DIParametersCommand extends Command
 						$spaces,
 						$key,
 					));
+
+					if ($key !== $lastKey) {
+						$output->writeln('');
+					}
 				} else {
 					$output->writeln(sprintf(
 						'%s<fg=cyan>%s</>:',
@@ -134,7 +139,7 @@ final class DIParametersCommand extends Command
 			$value = 'null';
 			$fg = 'yellow';
 		} else {
-			$value = is_object($value) ? get_class($value) : 'Unknown';
+			$value = get_class($value);
 			$fg = 'red';
 		}
 
