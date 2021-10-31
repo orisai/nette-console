@@ -3,9 +3,13 @@
 namespace Tests\OriNette\Console\Unit\DI;
 
 use Generator;
+use Nette\DI\InvalidConfigurationException;
+use Nette\Http\RequestFactory;
 use OriNette\Console\Command\DIParametersCommand;
 use OriNette\Console\DI\LazyCommandLoader;
+use OriNette\Console\Http\ConsoleRequestFactory;
 use OriNette\DI\Boot\ManualConfigurator;
+use Orisai\Exceptions\Logic\InvalidState;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -275,6 +279,75 @@ final class ConsoleExtensionTest extends TestCase
 		);
 
 		self::assertInstanceOf(DefaultNameCommand::class, $command);
+	}
+
+	public function testHttpNoService(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.http.noService.neon');
+
+		$this->expectException(InvalidState::class);
+		$this->expectExceptionMessage(<<<'MSG'
+Context: Option 'console > http > override' is enabled.
+Problem: Service of type 'Nette\Http\RequestFactory' not found.
+Solution: Register extension 'Nette\Bridges\HttpDI\HttpExtension' or
+          'RequestFactory' service.
+MSG);
+
+		$configurator->createContainer();
+	}
+
+	public function testHttpBadUrl(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.http.badUrl.neon');
+
+		$this->expectException(InvalidConfigurationException::class);
+		$this->expectExceptionMessage(
+			"Failed assertion 'has to be valid URL' for item 'console › http › url' with value 'orisai.dev'.",
+		);
+
+		$configurator->createContainer();
+	}
+
+	public function testHttpConfigUrl(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.http.neon');
+
+		$container = $configurator->createContainer();
+
+		$requestFactory = $container->getByType(RequestFactory::class);
+		self::assertInstanceOf(ConsoleRequestFactory::class, $requestFactory);
+
+		$request = $requestFactory->fromGlobals();
+		self::assertSame('https://orisai.dev/', $request->getUrl()->getAbsoluteUrl());
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 */
+	public function testHttpArgvUrl(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.http.noUrl.neon');
+
+		$_SERVER['argv'] = [
+			'foo',
+			'--ori-url=https://example.com',
+		];
+
+		$container = $configurator->createContainer();
+
+		$requestFactory = $container->getByType(RequestFactory::class);
+		self::assertInstanceOf(ConsoleRequestFactory::class, $requestFactory);
+
+		$request = $requestFactory->fromGlobals();
+		self::assertSame('https://example.com/', $request->getUrl()->getAbsoluteUrl());
 	}
 
 }

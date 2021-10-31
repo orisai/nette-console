@@ -1,0 +1,8 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+	http: Nette\Bridges\HttpDI\HttpExtension
+
+console:
+	http:
+		override: true
+		url: orisai.dev

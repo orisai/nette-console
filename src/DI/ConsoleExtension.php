@@ -2,19 +2,29 @@
 
 namespace OriNette\Console\DI;
 
+use Nette\Bridges\HttpDI\HttpExtension;
 use Nette\DI\CompilerExtension;
 use Nette\DI\ContainerBuilder;
 use Nette\DI\Definitions\ServiceDefinition;
+use Nette\DI\Definitions\Statement;
 use Nette\DI\Extensions\DIExtension;
+use Nette\DI\MissingServiceException;
+use Nette\Http\RequestFactory;
 use Nette\PhpGenerator\PhpLiteral;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
+use Nette\Utils\Validators;
 use OriNette\Console\Command\DIParametersCommand;
+use OriNette\Console\Http\ConsoleRequestFactory;
+use Orisai\Exceptions\Logic\InvalidState;
+use Orisai\Exceptions\Message;
+use Orisai\Utils\Reflection\Classes;
 use stdClass;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function array_shift;
 use function assert;
@@ -58,6 +68,16 @@ final class ConsoleExtension extends CompilerExtension
 				'parameters' => Expect::structure([
 					'backup' => Expect::bool(false),
 				]),
+			]),
+			'http' => Expect::structure([
+				'override' => Expect::bool(false),
+				'url' => Expect::anyOf(
+					Expect::string(),
+					Expect::null(),
+				)->default(null)->assert(
+					static fn (?string $url): bool => $url === null || Validators::isUrl($url),
+					'has to be valid URL',
+				),
 			]),
 		]);
 	}
@@ -126,6 +146,7 @@ final class ConsoleExtension extends CompilerExtension
 		$this->addCommandsToApplication($commandLoaderDefinition, $applicationDefinition, $builder);
 		$this->configureDIParametersCommand($config, $builder);
 		$this->setDispatcher($applicationDefinition, $builder);
+		$this->configureHttpRequest($applicationDefinition, $config, $builder);
 	}
 
 	private function addCommandsToApplication(
@@ -331,6 +352,54 @@ final class ConsoleExtension extends CompilerExtension
 		$applicationDefinition->addSetup('setDispatcher', [
 			$builder->getDefinition($dispatcherName),
 		]);
+	}
+
+	private function configureHttpRequest(
+		ServiceDefinition $applicationDefinition,
+		stdClass $config,
+		ContainerBuilder $builder
+	): void
+	{
+		$httpConfig = $config->http;
+
+		if (!$httpConfig->override) {
+			return;
+		}
+
+		$factoryClass = RequestFactory::class;
+		try {
+			$requestFactoryDefinition = $builder->getDefinitionByType($factoryClass);
+		} catch (MissingServiceException $exception) {
+			$factoryClassShort = Classes::getShortName($factoryClass);
+			$httpExtensionClass = HttpExtension::class;
+			$message = Message::create()
+				->withContext("Option '$this->name > http > override' is enabled.")
+				->withProblem("Service of type '$factoryClass' not found.")
+				->withSolution("Register extension '$httpExtensionClass' or '$factoryClassShort' service.");
+
+			throw InvalidState::create()
+				->withMessage($message);
+		}
+
+		$optionName = '--ori-url';
+
+		assert($requestFactoryDefinition instanceof ServiceDefinition);
+		$requestFactoryDefinition->setFactory(ConsoleRequestFactory::class, [
+			'url' => $httpConfig->url,
+			'argvOptionName' => $optionName,
+			'configOptionName' => "$this->name > http > url",
+		]);
+
+		$applicationDefinition->addSetup(
+			'getDefinition()->addArgument(?)',
+			[
+				new Statement(InputArgument::class, [
+					$optionName,
+					InputArgument::REQUIRED,
+					'URL address of simulated HTTP request',
+				]),
+			],
+		);
 	}
 
 }

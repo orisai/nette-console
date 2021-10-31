@@ -1,0 +1,6 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+
+console:
+	http:
+		override: true

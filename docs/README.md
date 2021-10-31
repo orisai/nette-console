@@ -144,22 +144,39 @@ console:
 ## HTTP - link generating
 
 It's possible to work with http request in console. Main reason to do so is link generating. To generate a link you have
-to specify base URL.
+to enable http request override and specify base URL.
 
-Either via configuration:
+Enable override:
 
 ```neon
 console:
-	url: https://www.example.com
+	http:
+		override: %consoleMode%
 ```
 
-Or via command parameter:
+Specify URL either via configuration:
+
+```neon
+console:
+	http:
+		url: https://www.example.com
+```
+
+Or via command option:
 
 ```sh
 bin/console newsletter:send --ori-url https://example.com
 ```
 
 All the commands have this global option available, and it precedes URL from configuration in priority.
+
+Be aware request is created just once per PHP run, argument `ori-url` cannot be changed without recreating DIC object.
+To call other commands from your command with different url you have to do so via separate PHP process (
+run `bin/console`).
+
+Also, only *argv* input is used because we need to know value of argument before a command is run. In practice, it means
+to set this option in tests you have to set it directly to `$_SERVER['argv']`, no other variant will work (e.g.
+via `new ArrayInput()`). `bin/console` uses *argv* as input, therefore standard usage is not affected.
 
 ## Overwriting command configuration
 
