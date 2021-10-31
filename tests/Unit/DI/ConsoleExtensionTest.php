@@ -58,7 +58,9 @@ final class ConsoleExtensionTest extends TestCase
 
 		self::assertSame([], array_keys($application->all('tests')));
 
-		self::assertInstanceOf(DIParametersCommand::class, $application->get('di:parameters'));
+		$parametersCommand = $application->get('di:parameters');
+		self::assertInstanceOf(LazyCommand::class, $parametersCommand);
+		self::assertInstanceOf(DIParametersCommand::class, $parametersCommand->getCommand());
 	}
 
 	public function testConfigured(): void
@@ -361,7 +363,8 @@ MSG);
 		$application = $container->getByType(Application::class);
 
 		$command = $application->get('di:parameters');
-		self::assertInstanceOf(DIParametersCommand::class, $command);
+		self::assertInstanceOf(LazyCommand::class, $command);
+		self::assertInstanceOf(DIParametersCommand::class, $command->getCommand());
 	}
 
 }

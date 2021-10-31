@@ -46,10 +46,9 @@ final class DIParametersCommand extends Command
 		return 'di:parameters';
 	}
 
-	protected function configure(): void
+	public static function getDefaultDescription(): string
 	{
-		$this->setName(self::getDefaultName());
-		$this->setDescription('Show DI container parameters');
+		return 'Show DI container parameters';
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
