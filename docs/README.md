@@ -9,12 +9,12 @@
 - [Setup](#setup)
 - [Console configuration](#console-configuration)
 - [Lazy loading](#lazy-loading)
-- [Extra commands](#extra-commands)
-	- [di:parameters](#diparameters)
 - [HTTP - link generating](#http---link-generating)
 - [Overwriting command configuration](#overwriting-command-configuration)
 - [Writing own commands](#writing-own-commands)
 	- [PHPStan compatibility](#phpstan-compatibility)
+- [Extra commands](#extra-commands)
+	- [di:parameters](#diparameters)
 - [Helpers and helper set](#helpers-and-helper-set)
 - [Events](#events)
 
@@ -118,31 +118,6 @@ No global config option is required, our integration is able to load both lazy a
 
 To debug lazy loading, run `bin/console commands-debug`. It will show you which commands are missing name or
 description.
-
-## Extra commands
-
-This package provides some extra commands specific for nette/di.
-
-### di:parameters
-
-`bin/console di:parameters`
-
-Dump parameters into console, sorted and highlighted.
-
-![di:parameters screenshot](di-parameters.png)
-
-If you do not have parameters export to DIC enabled (Option `export > parameters` of `Nette\DI\Extensions\DIExtension`
-is set to `false`), command will be not able to dump parameters. To bypass that limitation, enable backup of parameters
-just for scope of `di:parameters` command:
-
-```neon
-console:
-	di:
-		parameters:
-			# true|false
-			# Default: false
-			backup: %consoleMode%
-```
 
 ## HTTP - link generating
 
@@ -308,6 +283,31 @@ Link file `phpstan-console.php` in `phpstan.neon`:
 parameters:
 	symfony:
 		console_application_loader: phpstan-console.php
+```
+
+## Extra commands
+
+This package provides some extra commands specific for nette/di.
+
+### di:parameters
+
+`bin/console di:parameters`
+
+Dump parameters into console, sorted and highlighted.
+
+![di:parameters screenshot](di-parameters.png)
+
+If you do not have parameters export to DIC enabled (Option `export > parameters` of `Nette\DI\Extensions\DIExtension`
+is set to `false`), command will be not able to dump parameters. To bypass that limitation, enable backup of parameters
+just for scope of `di:parameters` command:
+
+```neon
+console:
+	di:
+		parameters:
+			# true|false
+			# Default: false
+			backup: %consoleMode%
 ```
 
 ## Helpers and helper set
