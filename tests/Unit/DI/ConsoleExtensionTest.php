@@ -5,6 +5,7 @@ namespace Tests\OriNette\Console\Unit\DI;
 use Generator;
 use Nette\DI\InvalidConfigurationException;
 use Nette\Http\RequestFactory;
+use OriNette\Console\Command\CommandsDebugCommand;
 use OriNette\Console\Command\DIParametersCommand;
 use OriNette\Console\DI\LazyCommandLoader;
 use OriNette\Console\Http\ConsoleRequestFactory;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as ComponentEventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcher;
 use Tests\OriNette\Console\Doubles\AnotherDefaultNameCommand;
@@ -28,6 +30,7 @@ use Tests\OriNette\Console\Doubles\SimpleCommand;
 use function array_keys;
 use function assert;
 use function dirname;
+use function preg_replace;
 
 final class ConsoleExtensionTest extends TestCase
 {
@@ -83,6 +86,7 @@ final class ConsoleExtensionTest extends TestCase
 			'list',
 			'boring-normie',
 			'di:parameters',
+			'commands-debug',
 			'default',
 			'both-default',
 			'tagged',
@@ -362,9 +366,46 @@ MSG);
 
 		$application = $container->getByType(Application::class);
 
-		$command = $application->get('di:parameters');
+		$command = $application->get(DIParametersCommand::getDefaultName());
 		self::assertInstanceOf(LazyCommand::class, $command);
 		self::assertInstanceOf(DIParametersCommand::class, $command->getCommand());
+	}
+
+	public function testCommandsDebugCommand(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.commands.neon');
+
+		$container = $configurator->createContainer();
+
+		$application = $container->getByType(Application::class);
+
+		$command = $application->get(CommandsDebugCommand::getDefaultName());
+		self::assertInstanceOf(LazyCommand::class, $command);
+		self::assertInstanceOf(CommandsDebugCommand::class, $command->getCommand());
+
+		$tester = new CommandTester($command);
+
+		$code = $tester->execute([]);
+
+		self::assertEquals(
+			<<<'MSG'
+Following commands are missing ❌ either name or description. Check orisai/nette-console documentation about lazy loading to learn how to fix it.
+ ---------------------------------- ------ -------------
+  Service                            Name   Description
+  command.defaultName                ✔️     ❌
+  command.tagged.name.a              ✔️     ❌
+  command.tagged.name.b              ✔️     ❌
+  command.tagged.name.c              ✔️     ❌
+  command.hiddenAndAliased.negated   ✔️     ❌
+  command.notLazy                    ❌      ✔️
+ ---------------------------------- ------ -------------
+
+MSG,
+			preg_replace('/ +$/m', '', $tester->getDisplay()),
+		);
+		self::assertSame($command::FAILURE, $code);
 	}
 
 }

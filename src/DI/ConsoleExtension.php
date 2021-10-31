@@ -14,6 +14,7 @@ use Nette\PhpGenerator\PhpLiteral;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
 use Nette\Utils\Validators;
+use OriNette\Console\Command\CommandsDebugCommand;
 use OriNette\Console\Command\DIParametersCommand;
 use OriNette\Console\Http\ConsoleRequestFactory;
 use Orisai\Exceptions\Logic\InvalidState;
@@ -49,6 +50,8 @@ final class ConsoleExtension extends CompilerExtension
 	private ServiceDefinition $commandLoaderDefinition;
 
 	private ServiceDefinition $diParametersCommandDefinition;
+
+	private ServiceDefinition $commandsDebugCommandDefinition;
 
 	public function getConfigSchema(): Schema
 	{
@@ -91,6 +94,7 @@ final class ConsoleExtension extends CompilerExtension
 
 		$this->registerApplication($this->registerCommandLoader($builder), $config, $builder);
 		$this->registerDIParametersCommand($builder);
+		$this->registerCommandsDebugCommand($builder);
 	}
 
 	private function registerCommandLoader(ContainerBuilder $builder): ServiceDefinition
@@ -133,6 +137,12 @@ final class ConsoleExtension extends CompilerExtension
 			->setFactory(DIParametersCommand::class);
 	}
 
+	private function registerCommandsDebugCommand(ContainerBuilder $builder): void
+	{
+		$this->commandsDebugCommandDefinition = $builder->addDefinition($this->prefix('command.commandsDebug'))
+			->setFactory(CommandsDebugCommand::class);
+	}
+
 	public function beforeCompile(): void
 	{
 		parent::beforeCompile();
@@ -157,32 +167,42 @@ final class ConsoleExtension extends CompilerExtension
 	{
 		$commandDefinitions = $builder->findByType(Command::class);
 		$commandsMap = [];
+		$notLazyCommands = [];
 		foreach ($commandDefinitions as $commandDefinition) {
 			assert($commandDefinition instanceof ServiceDefinition);
 
 			$commandConfig = $this->configureCommand($commandDefinition, $builder);
 			$processedCommandDefinition = $commandConfig[0];
 			$commandName = $commandConfig[1];
+			$commandDescription = $commandConfig[2];
 
 			if ($commandName !== null) {
 				$commandsMap[$commandName] = $processedCommandDefinition->getName();
 			} else {
 				$applicationDefinition->addSetup('add', [$processedCommandDefinition]);
 			}
+
+			if ($commandName === null || $commandDescription === null) {
+				$notLazyCommands[] = [$commandDefinition->getName(), $commandName !== null, $commandDescription !== null];
+			}
 		}
 
-		$commandLoaderDefinition->getFactory()->arguments = [$commandsMap];
+		$commandLoaderDefinition->setArguments([$commandsMap]);
+
+		$this->commandsDebugCommandDefinition->setArguments([
+			'commands' => $notLazyCommands,
+		]);
 	}
 
 	/**
-	 * @return array{ServiceDefinition, string|null}
+	 * @return array{ServiceDefinition, string|null, string|null}
 	 */
 	private function configureCommand(ServiceDefinition $definition, ContainerBuilder $builder): array
 	{
 		[$name, $description] = $this->getCommandMeta($definition);
 		[$newDefinition, $name] = $this->processCommandDefinition($definition, $name, $description, $builder);
 
-		return [$newDefinition, $name];
+		return [$newDefinition, $name, $description];
 	}
 
 	/**

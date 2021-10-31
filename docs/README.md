@@ -116,6 +116,9 @@ or [in DI service configuration](#overwriting-command-configuration).
 
 No global config option is required, our integration is able to load both lazy and not lazy commands.
 
+To debug lazy loading, run `bin/console commands-debug`. It will show you which commands are missing name or
+description.
+
 ## Extra commands
 
 This package provides some extra commands specific for nette/di.
