@@ -1,0 +1,8 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+	- Tests\OriNette\Console\Doubles\RemoveParametersExtension
+
+console:
+	di:
+		parameters:
+			backup: true

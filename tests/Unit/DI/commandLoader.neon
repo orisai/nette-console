@@ -1,6 +1,7 @@
 services:
 	command.one: Tests\OriNette\Console\Doubles\DefaultNameCommand
 	command.two: Tests\OriNette\Console\Doubles\DefaultNameCommand
+	command.three: stdClass
 
 	loader:
 		factory: OriNette\Console\DI\LazyCommandLoader
@@ -8,3 +9,4 @@ services:
 			serviceMap:
 				one: command.one
 				two: command.two
+				three: command.three

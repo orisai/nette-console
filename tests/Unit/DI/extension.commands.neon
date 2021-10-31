@@ -74,4 +74,8 @@ services:
 			console.command:
 				name: defaults-neutralizer
 
-	command.notLazy: Symfony\Component\Console\Command\Command('boring-normie')
+	command.notLazy:
+		factory: Symfony\Component\Console\Command\Command('boring-normie')
+		tags:
+			console.command:
+				description: Description does not make me lazy enough.

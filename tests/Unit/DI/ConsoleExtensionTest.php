@@ -245,7 +245,7 @@ final class ConsoleExtensionTest extends TestCase
 			'command.notLazy',
 			Command::class,
 			'boring-normie',
-			'',
+			'Description does not make me lazy enough.',
 			[],
 			false,
 		];
@@ -348,6 +348,20 @@ MSG);
 
 		$request = $requestFactory->fromGlobals();
 		self::assertSame('https://example.com/', $request->getUrl()->getAbsoluteUrl());
+	}
+
+	public function testParametersBackupCustomRemoved(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.parametersBackup.customRemoved.neon');
+
+		$container = $configurator->createContainer();
+
+		$application = $container->getByType(Application::class);
+
+		$command = $application->get('di:parameters');
+		self::assertInstanceOf(DIParametersCommand::class, $command);
 	}
 
 }
