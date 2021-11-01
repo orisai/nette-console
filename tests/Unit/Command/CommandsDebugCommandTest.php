@@ -5,7 +5,11 @@ namespace Tests\OriNette\Console\Unit\Command;
 use OriNette\Console\Command\CommandsDebugCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use function preg_replace;
+use function array_map;
+use function explode;
+use function implode;
+use function rtrim;
+use const PHP_EOL;
 
 final class CommandsDebugCommandTest extends TestCase
 {
@@ -50,7 +54,13 @@ Following commands are missing ❌ either name or description. Check orisai/nett
  ---------- ------ -------------
 
 MSG,
-			preg_replace('/ +$/m', '', $tester->getDisplay()),
+			implode(
+				PHP_EOL,
+				array_map(
+					static fn (string $s): string => rtrim($s),
+					explode(PHP_EOL, $tester->getDisplay()),
+				),
+			),
 		);
 		self::assertSame($command::FAILURE, $code);
 	}

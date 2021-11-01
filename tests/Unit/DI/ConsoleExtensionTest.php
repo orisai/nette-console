@@ -28,9 +28,13 @@ use Tests\OriNette\Console\Doubles\DefaultNameCommand;
 use Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand;
 use Tests\OriNette\Console\Doubles\SimpleCommand;
 use function array_keys;
+use function array_map;
 use function assert;
 use function dirname;
-use function preg_replace;
+use function explode;
+use function implode;
+use function rtrim;
+use const PHP_EOL;
 
 final class ConsoleExtensionTest extends TestCase
 {
@@ -403,7 +407,13 @@ Following commands are missing ❌ either name or description. Check orisai/nett
  ---------------------------------- ------ -------------
 
 MSG,
-			preg_replace('/ +$/m', '', $tester->getDisplay()),
+			implode(
+				PHP_EOL,
+				array_map(
+					static fn (string $s): string => rtrim($s),
+					explode(PHP_EOL, $tester->getDisplay()),
+				),
+			),
 		);
 		self::assertSame($command::FAILURE, $code);
 	}
