@@ -10,6 +10,8 @@ use function explode;
 use function implode;
 use function rtrim;
 use const PHP_EOL;
+use const PHP_MAJOR_VERSION;
+use const PHP_MINOR_VERSION;
 
 final class CommandsDebugCommandTest extends TestCase
 {
@@ -43,8 +45,16 @@ MSG,
 
 		$code = $tester->execute([]);
 
-		self::assertSame(
-			<<<'MSG'
+		$expected = PHP_MAJOR_VERSION >= 8 && PHP_MINOR_VERSION >= 1 ? <<<'MSG'
+Following commands are missing ❌ either name or description. Check orisai/nette-console documentation about lazy loading to learn how to fix it.
+ ---------- ------ -------------
+  Service    Name   Description
+  service1   ✔️     ❌
+  service2   ❌     ✔️
+  service3   ✔️     ✔️
+ ---------- ------ -------------
+
+MSG : <<<'MSG'
 Following commands are missing ❌ either name or description. Check orisai/nette-console documentation about lazy loading to learn how to fix it.
  ---------- ------ -------------
   Service    Name   Description
@@ -53,7 +63,10 @@ Following commands are missing ❌ either name or description. Check orisai/nett
   service3   ✔️     ✔️
  ---------- ------ -------------
 
-MSG,
+MSG;
+
+		self::assertSame(
+			$expected,
 			implode(
 				PHP_EOL,
 				array_map(

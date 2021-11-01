@@ -35,6 +35,8 @@ use function explode;
 use function implode;
 use function rtrim;
 use const PHP_EOL;
+use const PHP_MAJOR_VERSION;
+use const PHP_MINOR_VERSION;
 
 final class ConsoleExtensionTest extends TestCase
 {
@@ -393,8 +395,19 @@ MSG);
 
 		$code = $tester->execute([]);
 
-		self::assertEquals(
-			<<<'MSG'
+		$expected = PHP_MAJOR_VERSION >= 8 && PHP_MINOR_VERSION >= 1 ? <<<'MSG'
+Following commands are missing ❌ either name or description. Check orisai/nette-console documentation about lazy loading to learn how to fix it.
+ ---------------------------------- ------ -------------
+  Service                            Name   Description
+  command.defaultName                ✔️     ❌
+  command.tagged.name.a              ✔️     ❌
+  command.tagged.name.b              ✔️     ❌
+  command.tagged.name.c              ✔️     ❌
+  command.hiddenAndAliased.negated   ✔️     ❌
+  command.notLazy                    ❌     ✔️
+ ---------------------------------- ------ -------------
+
+MSG : <<<'MSG'
 Following commands are missing ❌ either name or description. Check orisai/nette-console documentation about lazy loading to learn how to fix it.
  ---------------------------------- ------ -------------
   Service                            Name   Description
@@ -406,7 +419,10 @@ Following commands are missing ❌ either name or description. Check orisai/nett
   command.notLazy                    ❌      ✔️
  ---------------------------------- ------ -------------
 
-MSG,
+MSG;
+
+		self::assertEquals(
+			$expected,
 			implode(
 				PHP_EOL,
 				array_map(
