@@ -7,6 +7,8 @@
 ## Content
 
 - [Setup](#setup)
+	- [Entrypoint](#entrypoint)
+	- [Debug mode](#debug-mode)
 - [Console configuration](#console-configuration)
 - [Lazy loading](#lazy-loading)
 - [HTTP - link generating](#http---link-generating)
@@ -32,6 +34,8 @@ Register extension
 extensions:
 	console: OriNette\Console\DI\ConsoleExtension
 ```
+
+### Entrypoint
 
 Create an entrypoint for console
 
@@ -73,6 +77,33 @@ exit($application->run());
 ```
 
 Now you should be able to run console via `php bin/console`. In most of the environments should also work `bin/console`.
+
+### Debug mode
+
+To see any changes dependent on debug mode, like adding new commands to config, you have to enable debug mode as it's
+not enabled by default.
+
+With [nette/bootstrap](https://github.com/nette/bootstrap) configurator it may look like this:
+
+```php
+// Enable debug mode in console and on (http) localhost
+$configurator->setDebugMode(
+	PHP_SAPI === 'cli'
+	|| $configurator::detectDebugMode()
+);
+```
+
+With [orisai/nette-di](https://github.com/orisai/nette-di) configurator:
+
+```php
+use OriNette\DI\Boot\Environment;
+
+// Enable debug mode in console and on (http) localhost
+$configurator->setDebugMode(
+	Environment::isConsole()
+	|| Environment::isLocalhost()
+);
+```
 
 ## Console configuration
 
