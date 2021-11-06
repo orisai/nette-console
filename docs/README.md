@@ -13,6 +13,7 @@
 - [Lazy loading](#lazy-loading)
 - [HTTP - link generating](#http---link-generating)
 - [Overwriting command configuration](#overwriting-command-configuration)
+- [Command discovery](#command-discovery)
 - [Writing own commands](#writing-own-commands)
 	- [PHPStan compatibility](#phpstan-compatibility)
 - [Extra commands](#extra-commands)
@@ -229,6 +230,11 @@ Don't set command name, description, aliases or hidden via constructor or `set*(
 supported by lazy loading and configuration via tags and default properties/methods will always be prioritized.
 
 Note: Syntax of aliases and hidden command matches the one from Symfony.
+
+## Command discovery
+
+Extension automatically registers to console application every service with type `Symfony\Component\Console\Command`.
+That in practise means you don't have to pass commands to extension yourself.
 
 ## Writing own commands
 
