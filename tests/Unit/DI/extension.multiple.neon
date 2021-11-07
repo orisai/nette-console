@@ -1,0 +1,13 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+	customConsole: OriNette\Console\DI\ConsoleExtension
+	di: Nette\DI\Extensions\DIExtension
+
+customConsole:
+	autowired: Tests\OriNette\Console\Doubles\CustomApplication
+
+di:
+	export:
+		parameters: false
+		tags: false
+		types: false

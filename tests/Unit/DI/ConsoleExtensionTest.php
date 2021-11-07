@@ -23,6 +23,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as ComponentEventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcher;
 use Tests\OriNette\Console\Doubles\AnotherDefaultNameCommand;
+use Tests\OriNette\Console\Doubles\CustomApplication;
 use Tests\OriNette\Console\Doubles\DefaultBothCommand;
 use Tests\OriNette\Console\Doubles\DefaultNameCommand;
 use Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand;
@@ -345,6 +346,23 @@ final class ConsoleExtensionTest extends TestCase
 		);
 
 		self::assertInstanceOf(DefaultNameCommand::class, $command);
+	}
+
+	public function testMultipleConsoles(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.multiple.neon');
+
+		$container = $configurator->createContainer();
+
+		$application = $container->getByType(Application::class);
+		self::assertInstanceOf(Application::class, $application);
+		self::assertSame($application, $container->getService('console.application'));
+
+		$customApplication = $container->getByType(CustomApplication::class);
+		self::assertInstanceOf(CustomApplication::class, $customApplication);
+		self::assertSame($customApplication, $container->getService('customConsole.application'));
 	}
 
 	public function testHttpNoService(): void

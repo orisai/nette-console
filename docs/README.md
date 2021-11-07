@@ -20,6 +20,7 @@
 	- [di:parameters](#diparameters)
 - [Helpers and helper set](#helpers-and-helper-set)
 - [Events](#events)
+- [Multiple consoles](#multiple-consoles)
 
 ## Setup
 
@@ -387,3 +388,45 @@ rendering helpers can always be created via `new ExampleHelper()`.
 **symfony/event-dispatcher** (and also **symfony/event-dispatcher-contracts**) is integrated into console
 via `Symfony\Component\Console\ConsoleEvents`. Our extension autoconfigures that integration, so you can use these
 events.
+
+## Multiple consoles
+
+If you want commands separated by entrypoint, register multiple console extensions:
+
+```neon
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+	customConsole: OriNette\Console\DI\ConsoleExtension
+```
+
+Create custom `Application` class for auto-wiring:
+
+```php
+namespace App\Console;
+
+use Symfony\Component\Console\Application;
+
+final class CustomApplication extends Application
+{
+
+}
+```
+
+```neon
+anotherConsole:
+	autowired: App\Console\CustomApplication
+```
+
+Create new [entrypoint](#entrypoint) for the second console, with the `autowired` type:
+
+```php
+$application = $container->getByType(\App\Console\CustomApplication::class);
+```
+
+Configure [command discovery](#command-discovery) so the second console registers only allowed commands:
+
+```neon
+anotherConsole:
+	discovery:
+		tag: anotherConsole.command
+```

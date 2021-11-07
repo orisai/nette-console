@@ -60,6 +60,7 @@ final class ConsoleExtension extends CompilerExtension
 	public function getConfigSchema(): Schema
 	{
 		return Expect::structure([
+			'autowired' => Expect::string(Application::class),
 			'catchExceptions' => Expect::bool(false),
 			'name' => Expect::anyOf(
 				Expect::string(),
@@ -122,8 +123,8 @@ final class ConsoleExtension extends CompilerExtension
 	): void
 	{
 		$this->applicationDefinition = $applicationDefinition = $builder->addDefinition($this->prefix('application'))
-			->setFactory(Application::class)
-			->setType(Application::class)
+			->setFactory($config->autowired)
+			->setAutowired($config->autowired)
 			->addSetup('setAutoExit', [false])
 			->addSetup('setCatchExceptions', [$config->catchExceptions])
 			->addSetup('setCommandLoader', [$commandLoaderDefinition]);
@@ -136,7 +137,7 @@ final class ConsoleExtension extends CompilerExtension
 			$applicationDefinition->addSetup('setVersion', [$config->version]);
 		}
 
-		$this->compiler->addExportedType(Application::class);
+		$this->compiler->addExportedType($config->autowired);
 	}
 
 	private function registerDIParametersCommand(stdClass $config, ContainerBuilder $builder): void
