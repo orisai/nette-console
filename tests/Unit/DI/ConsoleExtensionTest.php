@@ -263,6 +263,60 @@ final class ConsoleExtensionTest extends TestCase
 		];
 	}
 
+	public function testTagDiscovery(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.tagDiscovery.neon');
+
+		$container = $configurator->createContainer();
+
+		$application = $container->getByType(Application::class);
+		self::assertInstanceOf(Application::class, $application);
+
+		self::assertSame([
+			'help',
+			'list',
+			'di:parameters:renamed',
+			'commands-debug',
+			'tagged',
+			'both-default',
+		], array_keys($application->all()));
+	}
+
+	public function testTagDiscoveryInternalCommands(): void
+	{
+		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
+		$configurator->setDebugMode(true);
+		$configurator->addConfig(__DIR__ . '/extension.tagDiscovery.internalCommands.neon');
+
+		$container = $configurator->createContainer();
+
+		$application = $container->getService('console.application');
+		self::assertInstanceOf(Application::class, $application);
+
+		self::assertSame([
+			'help',
+			'list',
+			'di:parameters',
+			'commands-debug',
+			'tagged',
+			'both-default',
+		], array_keys($application->all()));
+
+		$defaultApplication = $container->getService('defaultTagConsole.application');
+		self::assertInstanceOf(Application::class, $defaultApplication);
+
+		self::assertSame([
+			'help',
+			'list',
+			'default-di-params',
+			'default-commands-debug',
+			'default',
+			'both-default',
+		], array_keys($defaultApplication->all()));
+	}
+
 	public function testEventDispatcher(): void
 	{
 		$configurator = new ManualConfigurator(dirname(__DIR__, 3));

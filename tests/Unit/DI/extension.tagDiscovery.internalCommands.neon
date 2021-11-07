@@ -1,0 +1,28 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+	defaultTagConsole: OriNette\Console\DI\ConsoleExtension
+
+console:
+	discovery:
+		tag: customTag
+
+services:
+	command.tagged:
+		factory: Tests\OriNette\Console\Doubles\DefaultNameCommand
+		tags:
+			customTag:
+				command: tagged
+				description: Fully tagged
+
+	command.tagged.noOptions:
+		factory: Tests\OriNette\Console\Doubles\DefaultBothCommand
+		tags:
+			customTag: []
+
+	# Override names from default tag console so they don't mix up with commands from changed tag console
+	defaultTagConsole.command.diParameters:
+		tags:
+			console.command: default-di-params
+	defaultTagConsole.command.commandsDebug:
+		tags:
+			console.command: default-commands-debug

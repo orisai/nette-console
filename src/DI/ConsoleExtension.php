@@ -5,6 +5,7 @@ namespace OriNette\Console\DI;
 use Nette\Bridges\HttpDI\HttpExtension;
 use Nette\DI\CompilerExtension;
 use Nette\DI\ContainerBuilder;
+use Nette\DI\Definitions\Definition;
 use Nette\DI\Definitions\ServiceDefinition;
 use Nette\DI\Definitions\Statement;
 use Nette\DI\Extensions\DIExtension;
@@ -13,6 +14,7 @@ use Nette\Http\RequestFactory;
 use Nette\PhpGenerator\PhpLiteral;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
+use Nette\Utils\Strings;
 use Nette\Utils\Validators;
 use OriNette\Console\Command\CommandsDebugCommand;
 use OriNette\Console\Command\DIParametersCommand;
@@ -27,6 +29,8 @@ use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function array_keys;
+use function array_map;
 use function array_shift;
 use function assert;
 use function explode;
@@ -40,7 +44,7 @@ use function is_string;
 final class ConsoleExtension extends CompilerExtension
 {
 
-	public const COMMAND_TAG = 'console.command';
+	public const DEFAULT_COMMAND_TAG = 'console.command';
 
 	/** @var array<mixed> */
 	private array $parameters;
@@ -72,6 +76,12 @@ final class ConsoleExtension extends CompilerExtension
 					'backup' => Expect::bool(false),
 				]),
 			]),
+			'discovery' => Expect::structure([
+				'tag' => Expect::anyOf(
+					Expect::string(),
+					Expect::null(),
+				)->default(null),
+			]),
 			'http' => Expect::structure([
 				'override' => Expect::bool(false),
 				'url' => Expect::anyOf(
@@ -93,8 +103,8 @@ final class ConsoleExtension extends CompilerExtension
 		$config = $this->config;
 
 		$this->registerApplication($this->registerCommandLoader($builder), $config, $builder);
-		$this->registerDIParametersCommand($builder);
-		$this->registerCommandsDebugCommand($builder);
+		$this->registerDIParametersCommand($config, $builder);
+		$this->registerCommandsDebugCommand($config, $builder);
 	}
 
 	private function registerCommandLoader(ContainerBuilder $builder): ServiceDefinition
@@ -129,18 +139,20 @@ final class ConsoleExtension extends CompilerExtension
 		$this->compiler->addExportedType(Application::class);
 	}
 
-	private function registerDIParametersCommand(ContainerBuilder $builder): void
+	private function registerDIParametersCommand(stdClass $config, ContainerBuilder $builder): void
 	{
 		$this->parameters = $builder->parameters;
 
 		$this->diParametersCommandDefinition = $builder->addDefinition($this->prefix('command.diParameters'))
-			->setFactory(DIParametersCommand::class);
+			->setFactory(DIParametersCommand::class)
+			->addTag($config->discovery->tag ?? self::DEFAULT_COMMAND_TAG, []);
 	}
 
-	private function registerCommandsDebugCommand(ContainerBuilder $builder): void
+	private function registerCommandsDebugCommand(stdClass $config, ContainerBuilder $builder): void
 	{
 		$this->commandsDebugCommandDefinition = $builder->addDefinition($this->prefix('command.commandsDebug'))
-			->setFactory(CommandsDebugCommand::class);
+			->setFactory(CommandsDebugCommand::class)
+			->addTag($config->discovery->tag ?? self::DEFAULT_COMMAND_TAG, []);
 	}
 
 	public function beforeCompile(): void
@@ -153,7 +165,7 @@ final class ConsoleExtension extends CompilerExtension
 		$commandLoaderDefinition = $this->commandLoaderDefinition;
 		$applicationDefinition = $this->applicationDefinition;
 
-		$this->addCommandsToApplication($commandLoaderDefinition, $applicationDefinition, $builder);
+		$this->addCommandsToApplication($commandLoaderDefinition, $applicationDefinition, $config, $builder);
 		$this->configureDIParametersCommand($config, $builder);
 		$this->setDispatcher($applicationDefinition, $builder);
 		$this->configureHttpRequest($applicationDefinition, $config, $builder);
@@ -162,16 +174,28 @@ final class ConsoleExtension extends CompilerExtension
 	private function addCommandsToApplication(
 		ServiceDefinition $commandLoaderDefinition,
 		ServiceDefinition $applicationDefinition,
+		stdClass $config,
 		ContainerBuilder $builder
 	): void
 	{
-		$commandDefinitions = $builder->findByType(Command::class);
+		$tagName = $config->discovery->tag;
+		$commandDefinitions = $this->findCommandDefinitions($tagName, $builder);
+
 		$commandsMap = [];
 		$notLazyCommands = [];
 		foreach ($commandDefinitions as $commandDefinition) {
 			assert($commandDefinition instanceof ServiceDefinition);
 
-			$commandConfig = $this->configureCommand($commandDefinition, $builder);
+			if ($this->isCommandFromAnotherConsole($commandDefinition)) {
+				continue;
+			}
+
+			$commandConfig = $this->configureCommand(
+				$commandDefinition,
+				$builder,
+				$tagName ?? self::DEFAULT_COMMAND_TAG,
+			);
+
 			$processedCommandDefinition = $commandConfig[0];
 			$commandName = $commandConfig[1];
 			$commandDescription = $commandConfig[2];
@@ -195,11 +219,42 @@ final class ConsoleExtension extends CompilerExtension
 	}
 
 	/**
+	 * @return array<Definition>
+	 */
+	private function findCommandDefinitions(?string $tagName, ContainerBuilder $builder): array
+	{
+		return $tagName === null
+			? $builder->findByType(Command::class)
+			: array_map(
+				static fn (string $name): Definition => $builder->getDefinition($name),
+				array_keys($builder->findByTag($tagName)),
+			);
+	}
+
+	private function isCommandFromAnotherConsole(ServiceDefinition $definition): bool
+	{
+		$definitionName = $definition->getName();
+		assert(is_string($definitionName));
+
+		foreach ($this->compiler->getExtensions(self::class) as $extension) {
+
+			if ($extension->name !== $this->name
+				&& (Strings::startsWith($definitionName, "$extension->name.lazy.")
+					|| Strings::startsWith($definitionName, "$extension->name.command."))
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @return array{ServiceDefinition, string|null, string|null}
 	 */
-	private function configureCommand(ServiceDefinition $definition, ContainerBuilder $builder): array
+	private function configureCommand(ServiceDefinition $definition, ContainerBuilder $builder, string $tagName): array
 	{
-		[$name, $description] = $this->getCommandMeta($definition);
+		[$name, $description] = $this->getCommandMeta($definition, $tagName);
 		[$newDefinition, $name] = $this->processCommandDefinition($definition, $name, $description, $builder);
 
 		return [$newDefinition, $name, $description];
@@ -208,7 +263,7 @@ final class ConsoleExtension extends CompilerExtension
 	/**
 	 * @return array{string|null, string|null}
 	 */
-	private function getCommandMeta(ServiceDefinition $definition): array
+	private function getCommandMeta(ServiceDefinition $definition, string $tagName): array
 	{
 		$name = null;
 		$description = null;
@@ -242,7 +297,7 @@ final class ConsoleExtension extends CompilerExtension
 		}
 
 		// From tag - service tag is set
-		$tag = $definition->getTag(self::COMMAND_TAG);
+		$tag = $definition->getTag($tagName);
 		if (is_string($tag)) {
 			$name = $tag;
 		}

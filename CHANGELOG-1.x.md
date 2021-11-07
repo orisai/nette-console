@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.0.0...HEAD)
 
+### Added
+
+- `ConsoleExtension`
+  - `discovery > tag` option
+
 ## [1.0.0](https://github.com/orisai/nette-console/releases/tag/1.0.0) - 2021-10-31
 
 ### Added

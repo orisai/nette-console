@@ -236,6 +236,34 @@ Note: Syntax of aliases and hidden command matches the one from Symfony.
 Extension automatically registers to console application every service with type `Symfony\Component\Console\Command`.
 That in practise means you don't have to pass commands to extension yourself.
 
+`discovery > tag` option makes it possible to find only commands with given tag:
+
+```neon
+console:
+	discovery:
+		tag: my.console.command
+
+services:
+	overriden.command:
+		tags:
+			my.console.command: []
+```
+
+Set tag name is used instead of default `console.command` tag
+for [command config overriding](#overwriting-command-configuration):
+
+```neon
+services:
+	overriden.command:
+		tags:
+			# Not used by extension
+			console.command:
+				name: ignored
+			# Used by extension
+			my.console.command:
+				name: used
+```
+
 ## Writing own commands
 
 Following example shows how to define command that is findable by `ConsoleExtension` and is lazy loaded.
