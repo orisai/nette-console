@@ -9,14 +9,28 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Tests\OriNette\Console\Doubles\DefaultNameCommand;
 use function dirname;
+use function mkdir;
+use const PHP_VERSION_ID;
 
 final class LazyCommandLoaderTest extends TestCase
 {
 
+	private string $rootDir;
+
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->rootDir = dirname(__DIR__, 3);
+		if (PHP_VERSION_ID < 81_000) {
+			@mkdir("$this->rootDir/var/build");
+		}
+	}
+
 	public function testExisting(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/commandLoader.neon');
 
 		$container = $configurator->createContainer();
@@ -46,8 +60,8 @@ final class LazyCommandLoaderTest extends TestCase
 
 	public function testInvalid(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/commandLoader.neon');
 
 		$container = $configurator->createContainer();
@@ -70,8 +84,8 @@ MSG);
 
 	public function testMissing(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/commandLoader.neon');
 
 		$container = $configurator->createContainer();

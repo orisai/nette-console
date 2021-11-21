@@ -34,18 +34,32 @@ use function assert;
 use function dirname;
 use function explode;
 use function implode;
+use function mkdir;
 use function rtrim;
 use const PHP_EOL;
 use const PHP_MAJOR_VERSION;
 use const PHP_MINOR_VERSION;
+use const PHP_VERSION_ID;
 
 final class ConsoleExtensionTest extends TestCase
 {
 
+	private string $rootDir;
+
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->rootDir = dirname(__DIR__, 3);
+		if (PHP_VERSION_ID < 81_000) {
+			@mkdir("$this->rootDir/var/build");
+		}
+	}
+
 	public function testMinimal(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.minimal.neon');
 
 		$container = $configurator->createContainer();
@@ -75,8 +89,8 @@ final class ConsoleExtensionTest extends TestCase
 
 	public function testConfigured(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.commands.neon');
 
 		$container = $configurator->createContainer();
@@ -123,8 +137,8 @@ final class ConsoleExtensionTest extends TestCase
 		bool $hidden
 	): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.commands.neon');
 
 		$container = $configurator->createContainer();
@@ -266,8 +280,8 @@ final class ConsoleExtensionTest extends TestCase
 
 	public function testTagDiscovery(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.tagDiscovery.neon');
 
 		$container = $configurator->createContainer();
@@ -287,8 +301,8 @@ final class ConsoleExtensionTest extends TestCase
 
 	public function testTagDiscoveryInternalCommands(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.tagDiscovery.internalCommands.neon');
 
 		$container = $configurator->createContainer();
@@ -320,8 +334,8 @@ final class ConsoleExtensionTest extends TestCase
 
 	public function testEventDispatcher(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.eventDispatcher.neon');
 
 		$container = $configurator->createContainer();
@@ -350,8 +364,8 @@ final class ConsoleExtensionTest extends TestCase
 
 	public function testMultipleConsoles(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.multiple.neon');
 
 		$container = $configurator->createContainer();
@@ -367,8 +381,8 @@ final class ConsoleExtensionTest extends TestCase
 
 	public function testHttpNoService(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.http.noService.neon');
 
 		$this->expectException(InvalidState::class);
@@ -384,8 +398,8 @@ MSG);
 
 	public function testHttpBadUrl(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.http.badUrl.neon');
 
 		$this->expectException(InvalidConfigurationException::class);
@@ -398,8 +412,8 @@ MSG);
 
 	public function testHttpConfigUrl(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.http.neon');
 
 		$container = $configurator->createContainer();
@@ -416,8 +430,8 @@ MSG);
 	 */
 	public function testHttpArgvUrl(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.http.noUrl.neon');
 
 		$_SERVER['argv'] = [
@@ -436,8 +450,8 @@ MSG);
 
 	public function testParametersBackupCustomRemoved(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.parametersBackup.customRemoved.neon');
 
 		$container = $configurator->createContainer();
@@ -451,8 +465,8 @@ MSG);
 
 	public function testCommandsDebugCommand(): void
 	{
-		$configurator = new ManualConfigurator(dirname(__DIR__, 3));
-		$configurator->setDebugMode(true);
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
 		$configurator->addConfig(__DIR__ . '/extension.commands.neon');
 
 		$container = $configurator->createContainer();
