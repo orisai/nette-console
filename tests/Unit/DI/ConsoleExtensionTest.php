@@ -105,6 +105,8 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertSame([
 			'help',
 			'list',
+			// symfony/console 5.4+
+			...($application->has('_complete') ? ['_complete', 'completion'] : []),
 			'boring-normie',
 			'di:parameters',
 			'commands-debug',
@@ -292,6 +294,8 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertSame([
 			'help',
 			'list',
+			// symfony/console 5.4+
+			...($application->has('_complete') ? ['_complete', 'completion'] : []),
 			'di:parameters:renamed',
 			'commands-debug',
 			'tagged',
@@ -313,6 +317,8 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertSame([
 			'help',
 			'list',
+			// symfony/console 5.4+
+			...($application->has('_complete') ? ['_complete', 'completion'] : []),
 			'di:parameters',
 			'commands-debug',
 			'tagged',
@@ -325,6 +331,8 @@ final class ConsoleExtensionTest extends TestCase
 		self::assertSame([
 			'help',
 			'list',
+			// symfony/console 5.4+
+			...($application->has('_complete') ? ['_complete', 'completion'] : []),
 			'default-di-params',
 			'default-commands-debug',
 			'default',
