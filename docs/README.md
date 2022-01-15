@@ -44,7 +44,7 @@ Create an entrypoint for console
 It's a script similar to `www/index.php`, it just gets `Symfony\Component\Console\Application` from DI container and
 runs it.
 
-Create a file called `bin/console` and make sure it is executable - `mkdir bin/console && chmod +x bin/console`. After
+Create a file called `bin/console` and make sure it is executable - `touch bin/console && chmod +x bin/console`. After
 that just copy and paste one of following snippets into the file.
 
 For Nette 3.0+ [web-project](https://github.com/nette/web-project) structure, it should look like this:
