@@ -1,4 +1,8 @@
-<h1 align="center">Orisai Nette Console</h1>
+<h1 align="center">
+	<img src="https://github.com/orisai/.github/blob/main/images/repo_title.png" alt="Orisai"/>
+	<br/>
+	Nette Console
+</h1>
 
 <p align="center">
     <a href="https://symfony.com/doc/current/components/console.html">symfony/console</a> integration for <a href="https://nette.org">Nette</a>
