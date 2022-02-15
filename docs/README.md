@@ -34,7 +34,7 @@ Register extension
 
 ```neon
 extensions:
-	console: OriNette\Console\DI\ConsoleExtension
+	orisai.console: OriNette\Console\DI\ConsoleExtension
 ```
 
 ### Entrypoint
@@ -112,7 +112,7 @@ $configurator->setDebugMode(
 Optionally set `name` and `version`, they will be shown on top of `bin/console` (alias for `bin/console list`) command.
 
 ```neon
-console:
+orisai.console:
 
 	# string|null
 	# Default: null
@@ -129,7 +129,7 @@ Benefit is that Tracy is able not only to render exception in console but also t
 to enable error catching built in **symfony/console**.
 
 ```neon
-console:
+orisai.console:
 
 	# bool
 	# Default: false
@@ -160,7 +160,7 @@ to enable http request override and specify base URL.
 Enable override:
 
 ```neon
-console:
+orisai.console:
 	http:
 		override: %consoleMode%
 ```
@@ -168,7 +168,7 @@ console:
 Specify URL either via configuration:
 
 ```neon
-console:
+orisai.console:
 	http:
 		url: https://www.example.com
 ```
@@ -240,7 +240,7 @@ That in practise means you don't have to pass commands to extension yourself.
 `discovery > tag` option makes it possible to find only commands with given tag:
 
 ```neon
-console:
+orisai.console:
 	discovery:
 		tag: my.console.command
 
@@ -368,7 +368,7 @@ is set to `false`), command will be not able to dump parameters. To bypass that 
 just for scope of `di:parameters` command:
 
 ```neon
-console:
+orisai.
 	di:
 		parameters:
 			# true|false
@@ -395,8 +395,8 @@ If you want commands separated by entrypoint, register multiple console extensio
 
 ```neon
 extensions:
-	console: OriNette\Console\DI\ConsoleExtension
-	customConsole: OriNette\Console\DI\ConsoleExtension
+	orisai.console: OriNette\Console\DI\ConsoleExtension
+	custom.console: OriNette\Console\DI\ConsoleExtension
 ```
 
 Create custom `Application` class for auto-wiring:
@@ -413,7 +413,7 @@ final class CustomApplication extends Application
 ```
 
 ```neon
-anotherConsole:
+custom.console:
 	autowired: App\Console\CustomApplication
 ```
 
@@ -426,7 +426,7 @@ $application = $container->getByType(\App\Console\CustomApplication::class);
 Configure [command discovery](#command-discovery) so the second console registers only allowed commands:
 
 ```neon
-anotherConsole:
+custom.console:
 	discovery:
 		tag: anotherConsole.command
 ```
