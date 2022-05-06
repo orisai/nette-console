@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.1.1...HEAD)
 
+### Changed
+
+- `ConsoleExtension`
+  - `DEFAULT_COMMAND_TAG` -> `DefaultCommandTag` (is it even a BC break when nobody notices?)
+
 ## [1.1.1](https://github.com/orisai/nette-console/compare/1.1.0...1.1.1) - 2021-11-07
 
 ### Added

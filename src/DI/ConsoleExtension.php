@@ -44,7 +44,7 @@ use function is_string;
 final class ConsoleExtension extends CompilerExtension
 {
 
-	public const DEFAULT_COMMAND_TAG = 'console.command';
+	public const DefaultCommandTag = 'console.command';
 
 	/** @var array<mixed> */
 	private array $parameters;
@@ -146,14 +146,14 @@ final class ConsoleExtension extends CompilerExtension
 
 		$this->diParametersCommandDefinition = $builder->addDefinition($this->prefix('command.diParameters'))
 			->setFactory(DIParametersCommand::class)
-			->addTag($config->discovery->tag ?? self::DEFAULT_COMMAND_TAG, []);
+			->addTag($config->discovery->tag ?? self::DefaultCommandTag, []);
 	}
 
 	private function registerCommandsDebugCommand(stdClass $config, ContainerBuilder $builder): void
 	{
 		$this->commandsDebugCommandDefinition = $builder->addDefinition($this->prefix('command.commandsDebug'))
 			->setFactory(CommandsDebugCommand::class)
-			->addTag($config->discovery->tag ?? self::DEFAULT_COMMAND_TAG, []);
+			->addTag($config->discovery->tag ?? self::DefaultCommandTag, []);
 	}
 
 	public function beforeCompile(): void
@@ -194,7 +194,7 @@ final class ConsoleExtension extends CompilerExtension
 			$commandConfig = $this->configureCommand(
 				$commandDefinition,
 				$builder,
-				$tagName ?? self::DEFAULT_COMMAND_TAG,
+				$tagName ?? self::DefaultCommandTag,
 			);
 
 			$processedCommandDefinition = $commandConfig[0];
