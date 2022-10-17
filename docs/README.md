@@ -12,6 +12,7 @@
 - [Console configuration](#console-configuration)
 - [Lazy loading](#lazy-loading)
 - [HTTP - link generating](#http---link-generating)
+	- [HTTP headers](#http-headers)
 - [Overwriting command configuration](#overwriting-command-configuration)
 - [Command discovery](#command-discovery)
 - [Writing own commands](#writing-own-commands)
@@ -188,6 +189,26 @@ run `bin/console`).
 Also, only *argv* input is used because we need to know value of argument before a command is run. In practice, it means
 to set this option in tests you have to set it directly to `$_SERVER['argv']`, no other variant will work (e.g.
 via `new ArrayInput()`). `bin/console` uses *argv* as input, therefore standard usage is not affected.
+
+### HTTP headers
+
+Console HTTP request can define custom headers:
+
+```neon
+orisai.console:
+	http:
+		headers:
+			custom-name: custom-value
+```
+
+By default is set `user-agent` with value `orisai/nette-console`. It may be disabled as any other header:
+
+```neon
+orisai.console:
+	http:
+		headers:
+			user-agent: null
+```
 
 ## Overwriting command configuration
 

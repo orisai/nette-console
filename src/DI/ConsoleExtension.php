@@ -19,6 +19,7 @@ use Nette\Utils\Validators;
 use OriNette\Console\Command\CommandsDebugCommand;
 use OriNette\Console\Command\DIParametersCommand;
 use OriNette\Console\Http\ConsoleRequestFactory;
+use Orisai\Exceptions\Logic\InvalidArgument;
 use Orisai\Exceptions\Logic\InvalidState;
 use Orisai\Exceptions\Message;
 use Orisai\Utils\Reflection\Classes;
@@ -37,6 +38,7 @@ use function explode;
 use function is_a;
 use function is_array;
 use function is_string;
+use function strtolower;
 
 /**
  * @property-read stdClass $config
@@ -92,6 +94,12 @@ final class ConsoleExtension extends CompilerExtension
 					static fn (?string $url): bool => $url === null || Validators::isUrl($url),
 					'has to be valid URL',
 				),
+				'headers' => Expect::arrayOf(
+					Expect::anyOf(Expect::string(), Expect::null()),
+					Expect::string(),
+				)->default([
+					'user-agent' => 'orisai/nette-console',
+				]),
 			]),
 		]);
 	}
@@ -465,6 +473,28 @@ final class ConsoleExtension extends CompilerExtension
 			'argvOptionName' => $optionName,
 			'configOptionName' => "$this->name > http > url",
 		]);
+
+		foreach ($httpConfig->headers as $name => $value) {
+			$lowerName = strtolower($name);
+			if ($name !== $lowerName) {
+				$message = Message::create()
+					->withContext("Incorrect case of config key '$this->name > http > headers > $name'.")
+					->withProblem('Only lowercase header names are supported.')
+					->withSolution("Use '$lowerName' instead of '$name'.");
+
+				throw InvalidArgument::create()
+					->withMessage($message);
+			}
+
+			if ($value === null) {
+				continue;
+			}
+
+			$requestFactoryDefinition->addSetup('addHeader', [
+				$name,
+				$value,
+			]);
+		}
 
 		$applicationDefinition->addSetup(
 			'getDefinition()->addArgument(?)',

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.1.2...HEAD)
 
+- `ConsoleExtension`
+  - `http > headers` option
+
 ## [1.1.2](https://github.com/orisai/nette-console/compare/1.1.1...1.1.2) - 2022-05-06
 
 ### Changed

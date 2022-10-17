@@ -10,6 +10,7 @@ use OriNette\Console\Command\DIParametersCommand;
 use OriNette\Console\DI\LazyCommandLoader;
 use OriNette\Console\Http\ConsoleRequestFactory;
 use OriNette\DI\Boot\ManualConfigurator;
+use Orisai\Exceptions\Logic\InvalidArgument;
 use Orisai\Exceptions\Logic\InvalidState;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
@@ -431,6 +432,44 @@ MSG);
 
 		$request = $requestFactory->fromGlobals();
 		self::assertSame('https://orisai.dev/', $request->getUrl()->getAbsoluteUrl());
+		self::assertSame(
+			['user-agent' => 'orisai/nette-console'],
+			$request->getHeaders(),
+		);
+	}
+
+	public function testHttpCustomHeaders(): void
+	{
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
+		$configurator->addConfig(__DIR__ . '/extension.http.customHeaders.neon');
+
+		$container = $configurator->createContainer();
+
+		$requestFactory = $container->getByType(RequestFactory::class);
+		self::assertInstanceOf(ConsoleRequestFactory::class, $requestFactory);
+
+		$request = $requestFactory->fromGlobals();
+		self::assertSame(
+			['custom' => 'custom'],
+			$request->getHeaders(),
+		);
+	}
+
+	public function testHttpWrongHeaderCase(): void
+	{
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
+		$configurator->addConfig(__DIR__ . '/extension.http.wrongHeaderCase.neon');
+
+		$this->expectException(InvalidArgument::class);
+		$this->expectExceptionMessage(<<<'MSG'
+Context: Incorrect case of config key 'console > http > headers > User-Agent'.
+Problem: Only lowercase header names are supported.
+Solution: Use 'user-agent' instead of 'User-Agent'.
+MSG);
+
+		$configurator->createContainer();
 	}
 
 	/**

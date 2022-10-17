@@ -83,6 +83,24 @@ MSG);
 		$requestFactory->fromGlobals();
 	}
 
+	public function testHeaders(): void
+	{
+		$requestFactory = $this->createFactory('https://orisai.dev');
+
+		$requestFactory->addHeader('User-Agent', 'overridden');
+		$requestFactory->addHeader('user-agent', 'orisai/nette-console');
+		$requestFactory->addHeader('custom', 'custom');
+
+		$request = $requestFactory->fromGlobals();
+		self::assertSame(
+			[
+				'user-agent' => 'orisai/nette-console',
+				'custom' => 'custom',
+			],
+			$request->getHeaders(),
+		);
+	}
+
 	private function createFactory(?string $url): ConsoleRequestFactory
 	{
 		return new ConsoleRequestFactory($url, '--ori-url', 'console > http > url');

@@ -10,6 +10,7 @@ use Orisai\Exceptions\Logic\InvalidArgument;
 use Orisai\Exceptions\Logic\InvalidState;
 use Orisai\Exceptions\Message;
 use Symfony\Component\Console\Input\ArgvInput;
+use function strtolower;
 
 /**
  * @internal
@@ -23,6 +24,9 @@ final class ConsoleRequestFactory extends RequestFactory
 
 	private string $configOptionName;
 
+	/** @var array<string, string> */
+	private array $headers = [];
+
 	public function __construct(?string $url, string $argvOptionName, string $configOptionName)
 	{
 		$this->url = $url;
@@ -34,7 +38,16 @@ final class ConsoleRequestFactory extends RequestFactory
 	{
 		return new Request(
 			new UrlScript($this->getUrl()),
+			null,
+			null,
+			null,
+			$this->headers,
 		);
+	}
+
+	public function addHeader(string $name, string $value): void
+	{
+		$this->headers[strtolower($name)] = $value;
 	}
 
 	private function getUrl(): string
