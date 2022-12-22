@@ -10,3 +10,8 @@ parameters:
 		- message: '#^Method (.+)getNames\(\) should return array\<string\> but returns array\<int, int\|string\>\.$#'
 		  path: ../src/DI/LazyCommandLoader.php
 		  count: 1
+
+		# Compatibility
+		- message: '#^Instantiation of deprecated class Nette\\PhpGenerator\\PhpLiteral(.+)#'
+		  path: ../src/DI/ConsoleExtension.php
+		  count: 2

@@ -7,12 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.2.1...HEAD)
 
+### Changed
+
+- Composer
+  - allows nette/php-generator ^4.0.0
+
 ## [1.2.1](https://github.com/orisai/nette-console/compare/1.2.0...1.2.1) - 2022-12-09
+
+### Changed
 
 - Composer
 	- allows PHP 8.2
 
 ## [1.2.0](https://github.com/orisai/nette-console/compare/1.1.2...1.2.0) - 2022-10-17
+
+### Added
 
 - `ConsoleExtension`
   - `http > headers` option
