@@ -1,0 +1,11 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Console\\\\\\\\Application' and Symfony\\\\Component\\\\Console\\\\Application will always evaluate to true\\.$#"
+			count: 6
+			path: ../tests/Unit/DI/ConsoleExtensionTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Tests\\\\\\\\OriNette\\\\\\\\Console\\\\\\\\Doubles\\\\\\\\CustomApplication' and Tests\\\\OriNette\\\\Console\\\\Doubles\\\\CustomApplication will always evaluate to true\\.$#"
+			count: 1
+			path: ../tests/Unit/DI/ConsoleExtensionTest.php
