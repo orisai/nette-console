@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.2.2...HEAD)
 
+### Changed
+
+- Composer
+	- allows nette/utils ^4.0.0
+
 ## [1.2.2](https://github.com/orisai/nette-console/compare/1.2.1...1.2.2) - 2022-12-22
 
 ### Changed

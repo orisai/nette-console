@@ -14,7 +14,6 @@ use Nette\Http\RequestFactory;
 use Nette\PhpGenerator\PhpLiteral;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
-use Nette\Utils\Strings;
 use Nette\Utils\Validators;
 use OriNette\Console\Command\CommandsDebugCommand;
 use OriNette\Console\Command\DIParametersCommand;
@@ -38,6 +37,7 @@ use function explode;
 use function is_a;
 use function is_array;
 use function is_string;
+use function str_starts_with;
 use function strtolower;
 
 /**
@@ -248,8 +248,8 @@ final class ConsoleExtension extends CompilerExtension
 		foreach ($this->compiler->getExtensions(self::class) as $extension) {
 
 			if ($extension->name !== $this->name
-				&& (Strings::startsWith($definitionName, "$extension->name.lazy.")
-					|| Strings::startsWith($definitionName, "$extension->name.command."))
+				&& (str_starts_with($definitionName, "$extension->name.lazy.")
+					|| str_starts_with($definitionName, "$extension->name.command."))
 			) {
 				return true;
 			}
