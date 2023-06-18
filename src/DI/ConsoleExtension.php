@@ -12,6 +12,7 @@ use Nette\DI\Extensions\DIExtension;
 use Nette\DI\MissingServiceException;
 use Nette\Http\RequestFactory;
 use Nette\PhpGenerator\PhpLiteral;
+use Nette\Schema\DynamicParameter;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
 use Nette\Utils\Validators;
@@ -90,10 +91,15 @@ final class ConsoleExtension extends CompilerExtension
 				'url' => Expect::anyOf(
 					Expect::string(),
 					Expect::null(),
-				)->default(null)->assert(
-					static fn (?string $url): bool => $url === null || Validators::isUrl($url),
-					'has to be valid URL',
-				),
+				)
+					->dynamic()
+					->default(null)
+					->assert(
+						static fn ($url): bool => $url === null
+							|| $url instanceof DynamicParameter
+							|| Validators::isUrl($url),
+						'has to be valid URL',
+					),
 				'headers' => Expect::arrayOf(
 					Expect::anyOf(Expect::string(), Expect::null()),
 					Expect::string(),

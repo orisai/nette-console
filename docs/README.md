@@ -171,6 +171,7 @@ Specify URL either via configuration:
 ```neon
 orisai.console:
 	http:
+		# string | dynamic parameter
 		url: https://www.example.com
 ```
 

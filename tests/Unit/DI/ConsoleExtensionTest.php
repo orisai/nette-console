@@ -447,6 +447,40 @@ MSG);
 		self::assertSame('https://orisai.dev/', $output->fetch());
 	}
 
+	/**
+	 * @dataProvider provideHttpConfigUrlDynamic
+	 */
+	public function testHttpConfigUrlDynamic(string $url): void
+	{
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
+		$configurator->addConfig(__DIR__ . '/extension.http.dynamic.neon');
+		$configurator->addDynamicParameters([
+			'url' => $url,
+		]);
+
+		$container = $configurator->createContainer();
+
+		$requestFactory = $container->getByType(RequestFactory::class);
+		self::assertInstanceOf(ConsoleRequestFactory::class, $requestFactory);
+
+		$request = $requestFactory->fromGlobals();
+		self::assertSame($url, $request->getUrl()->getAbsoluteUrl());
+
+		$application = $container->getByType(Application::class);
+		$application->run(
+			new ArrayInput(['command' => UrlPrintingCommand::getDefaultName()]),
+			$output = new BufferedOutput(),
+		);
+		self::assertSame($url, $output->fetch());
+	}
+
+	public function provideHttpConfigUrlDynamic(): Generator
+	{
+		yield ['http://example1.com/'];
+		yield ['https://www.example2.com/'];
+	}
+
 	public function testHttpCustomHeaders(): void
 	{
 		$configurator = new ManualConfigurator($this->rootDir);

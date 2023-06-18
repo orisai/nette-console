@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.2.4...HEAD)
 
+### Added
+
+- `ConsoleExtension`
+	- `http > url` - allows dynamic parameter
+
 ## [1.2.4](https://github.com/orisai/nette-console/compare/1.2.3...1.2.4) - 2023-06-18
 
 ### Fixed
