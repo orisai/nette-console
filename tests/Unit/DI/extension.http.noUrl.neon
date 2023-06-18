@@ -5,3 +5,6 @@ extensions:
 console:
 	http:
 		override: true
+
+services:
+	- Tests\OriNette\Console\Doubles\UrlPrintingCommand

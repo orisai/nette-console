@@ -6,3 +6,6 @@ console:
 	http:
 		override: true
 		url: https://orisai.dev
+
+services:
+	- Tests\OriNette\Console\Doubles\UrlPrintingCommand

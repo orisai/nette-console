@@ -19,6 +19,7 @@ use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as ComponentEventDispatcher;
@@ -29,6 +30,7 @@ use Tests\OriNette\Console\Doubles\DefaultBothCommand;
 use Tests\OriNette\Console\Doubles\DefaultNameCommand;
 use Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand;
 use Tests\OriNette\Console\Doubles\SimpleCommand;
+use Tests\OriNette\Console\Doubles\UrlPrintingCommand;
 use function array_keys;
 use function array_map;
 use function assert;
@@ -436,6 +438,13 @@ MSG);
 			['user-agent' => 'orisai/nette-console'],
 			$request->getHeaders(),
 		);
+
+		$application = $container->getByType(Application::class);
+		$application->run(
+			new ArrayInput(['command' => UrlPrintingCommand::getDefaultName()]),
+			$output = new BufferedOutput(),
+		);
+		self::assertSame('https://orisai.dev/', $output->fetch());
 	}
 
 	public function testHttpCustomHeaders(): void
@@ -474,12 +483,13 @@ MSG);
 
 	/**
 	 * @runInSeparateProcess
+	 * @dataProvider provideHttpArgvUrl
 	 */
-	public function testHttpArgvUrl(): void
+	public function testHttpArgvUrl(string $config): void
 	{
 		$configurator = new ManualConfigurator($this->rootDir);
 		$configurator->setForceReloadContainer();
-		$configurator->addConfig(__DIR__ . '/extension.http.noUrl.neon');
+		$configurator->addConfig($config);
 
 		$_SERVER['argv'] = [
 			'foo',
@@ -488,14 +498,24 @@ MSG);
 
 		$container = $configurator->createContainer();
 
-		// Ensures Application is properly configured
-		$container->getByType(Application::class);
-
 		$requestFactory = $container->getByType(RequestFactory::class);
 		self::assertInstanceOf(ConsoleRequestFactory::class, $requestFactory);
 
 		$request = $requestFactory->fromGlobals();
 		self::assertSame('https://example.com/', $request->getUrl()->getAbsoluteUrl());
+
+		$application = $container->getByType(Application::class);
+		$application->run(
+			new ArrayInput(['command' => UrlPrintingCommand::getDefaultName()]),
+			$output = new BufferedOutput(),
+		);
+		self::assertSame('https://example.com/', $output->fetch());
+	}
+
+	public function provideHttpArgvUrl(): Generator
+	{
+		yield 'url via command arg only' => [__DIR__ . '/extension.http.noUrl.neon'];
+		yield 'url from arg overrides url from config' => [__DIR__ . '/extension.http.neon'];
 	}
 
 	public function testParametersBackupCustomRemoved(): void
