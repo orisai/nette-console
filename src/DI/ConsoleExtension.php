@@ -497,11 +497,12 @@ final class ConsoleExtension extends CompilerExtension
 		}
 
 		$applicationDefinition->addSetup(
-			'getDefinition()->addArgument(?)',
+			'?->getDefinition()->addArgument(?)',
 			[
+				$applicationDefinition,
 				new Statement(InputArgument::class, [
 					$optionName,
-					InputArgument::REQUIRED,
+					InputArgument::OPTIONAL,
 					'URL address of simulated HTTP request',
 				]),
 			],

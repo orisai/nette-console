@@ -488,6 +488,9 @@ MSG);
 
 		$container = $configurator->createContainer();
 
+		// Ensures Application is properly configured
+		$container->getByType(Application::class);
+
 		$requestFactory = $container->getByType(RequestFactory::class);
 		self::assertInstanceOf(ConsoleRequestFactory::class, $requestFactory);
 
