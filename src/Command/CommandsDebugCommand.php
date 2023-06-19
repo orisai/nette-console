@@ -10,11 +10,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class CommandsDebugCommand extends Command
 {
 
-	/** @var array<array{string, bool, bool}> */
+	/** @var array<array{string, string, bool, bool}> */
 	private array $commands;
 
 	/**
-	 * @param array<array{string, bool, bool}> $commands
+	 * @param array<array{string, string, bool, bool}> $commands
 	 */
 	public function __construct(array $commands)
 	{
@@ -41,17 +41,19 @@ final class CommandsDebugCommand extends Command
 		}
 
 		$output->writeln('Following commands are missing <fg=red>❌</> either name or description. ' .
-			'Check orisai/nette-console documentation about lazy loading to learn how to fix it.');
+			'Check orisai/nette-console documentation about lazy loading to learn how to fix it.'
+			. "\n");
 
 		$table = new Table($output);
-		$table->setStyle('symfony-style-guide');
+		$table->setStyle('compact');
 
-		$table->addRow(['Service', 'Name', 'Description']);
-		foreach ($this->commands as [$service, $name, $description]) {
+		$table->addRow(['Name', 'Description', 'Service name', 'Service type']);
+		foreach ($this->commands as [$service, $type, $name, $description]) {
 			$table->addRow([
-				$service,
 				$name ? '<fg=green>✔️</>' : '<fg=red>❌</>',
 				$description ? '<fg=green>✔️</>' : '<fg=red>❌</>',
+				$service,
+				$type,
 			]);
 		}
 

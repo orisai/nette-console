@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - `ConsoleExtension`
 	- `http > url` - allows dynamic parameter
+- `commands-debug` command
+	- type (class name)
+	- redesign
 
 ## [1.2.4](https://github.com/orisai/nette-console/compare/1.2.3...1.2.4) - 2023-06-18
 

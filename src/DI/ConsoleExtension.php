@@ -222,7 +222,12 @@ final class ConsoleExtension extends CompilerExtension
 			}
 
 			if ($commandName === null || $commandDescription === null) {
-				$notLazyCommands[] = [$commandDefinition->getName(), $commandName !== null, $commandDescription !== null];
+				$notLazyCommands[] = [
+					$commandDefinition->getName(),
+					$commandDefinition->getType(),
+					$commandName !== null,
+					$commandDescription !== null,
+				];
 			}
 		}
 
