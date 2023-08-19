@@ -28,7 +28,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function array_keys;
 use function array_map;
@@ -508,12 +508,13 @@ final class ConsoleExtension extends CompilerExtension
 		}
 
 		$applicationDefinition->addSetup(
-			'?->getDefinition()->addArgument(?)',
+			'?->getDefinition()->addOption(?)',
 			[
 				$applicationDefinition,
-				new Statement(InputArgument::class, [
+				new Statement(InputOption::class, [
 					$optionName,
-					InputArgument::OPTIONAL,
+					null,
+					InputOption::VALUE_REQUIRED,
 					'URL address of simulated HTTP request',
 				]),
 			],

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.3.0...HEAD)
 
+### Fixed
+
+- `--ori-url` is added as an option instead of an argument (it broke commands using arguments)
+
 ## [1.3.0](https://github.com/orisai/nette-console/compare/1.2.4...1.3.0) - 2023-06-19
 
 ### Added

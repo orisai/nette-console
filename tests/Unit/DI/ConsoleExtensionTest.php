@@ -441,7 +441,10 @@ MSG);
 
 		$application = $container->getByType(Application::class);
 		$application->run(
-			new ArrayInput(['command' => UrlPrintingCommand::getDefaultName()]),
+			new ArrayInput([
+				'command' => UrlPrintingCommand::getDefaultName(),
+				'required-arg' => 'value',
+			]),
 			$output = new BufferedOutput(),
 		);
 		self::assertSame('https://orisai.dev/', $output->fetch());
@@ -469,7 +472,10 @@ MSG);
 
 		$application = $container->getByType(Application::class);
 		$application->run(
-			new ArrayInput(['command' => UrlPrintingCommand::getDefaultName()]),
+			new ArrayInput([
+				'command' => UrlPrintingCommand::getDefaultName(),
+				'required-arg' => 'value',
+			]),
 			$output = new BufferedOutput(),
 		);
 		self::assertSame($url, $output->fetch());
@@ -540,7 +546,10 @@ MSG);
 
 		$application = $container->getByType(Application::class);
 		$application->run(
-			new ArrayInput(['command' => UrlPrintingCommand::getDefaultName()]),
+			new ArrayInput([
+				'command' => UrlPrintingCommand::getDefaultName(),
+				'required-arg' => 'value',
+			]),
 			$output = new BufferedOutput(),
 		);
 		self::assertSame('https://example.com/', $output->fetch());
