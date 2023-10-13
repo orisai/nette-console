@@ -128,6 +128,39 @@ final class ConsoleExtensionTest extends TestCase
 	}
 
 	/**
+	 * @param string|int|float|null $version
+	 *
+	 * @dataProvider provideConfiguredDynamic
+	 */
+	public function testConfiguredDynamic(?string $name, $version): void
+	{
+		$configurator = new ManualConfigurator($this->rootDir);
+		$configurator->setForceReloadContainer();
+		$configurator->addConfig(__DIR__ . '/extension.basicOptions.dynamic.neon');
+		$configurator->addDynamicParameters([
+			'name' => $name,
+			'version' => $version,
+		]);
+
+		$container = $configurator->createContainer();
+
+		$application = $container->getByType(Application::class);
+
+		self::assertSame($name ?? 'UNKNOWN', $application->getName());
+		self::assertSame((string) ($version ?? 'UNKNOWN'), $application->getVersion());
+	}
+
+	public function provideConfiguredDynamic(): Generator
+	{
+		yield ['foo', 'bar'];
+		yield ['lorem', 'ipsum'];
+		yield ['lorem', 1];
+		yield ['lorem', 1.2];
+		yield [null, 'version'];
+		yield ['name', null];
+	}
+
+	/**
 	 * @param class-string<Command> $class
 	 * @param array<string>         $aliases
 	 *

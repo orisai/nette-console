@@ -1,0 +1,10 @@
+extensions:
+	console: OriNette\Console\DI\ConsoleExtension
+
+console:
+	name: %name%
+	version: %version%
+
+parameters:
+	name: '' # dynamic
+	version: '' # dynamic

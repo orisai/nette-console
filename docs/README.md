@@ -115,11 +115,11 @@ Optionally set `name` and `version`, they will be shown on top of `bin/console` 
 ```neon
 orisai.console:
 
-	# string|null
+	# string | null | dynamic parameter
 	# Default: null
 	name: Application name
 
-	# string|null
+	# string | null | dynamic parameter
 	# Default: null
 	version: '0.1.0'
 ```

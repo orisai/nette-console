@@ -11,6 +11,7 @@ use Nette\DI\Definitions\Statement;
 use Nette\DI\Extensions\DIExtension;
 use Nette\DI\MissingServiceException;
 use Nette\Http\RequestFactory;
+use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpLiteral;
 use Nette\Schema\DynamicParameter;
 use Nette\Schema\Expect;
@@ -68,13 +69,13 @@ final class ConsoleExtension extends CompilerExtension
 			'name' => Expect::anyOf(
 				Expect::string(),
 				Expect::null(),
-			)->default(null),
+			)->dynamic()->default(null),
 			'version' => Expect::anyOf(
 				Expect::string(),
 				Expect::int(),
 				Expect::float(),
 				Expect::null(),
-			)->default(null),
+			)->dynamic()->default(null),
 			'di' => Expect::structure([
 				'parameters' => Expect::structure([
 					'backup' => Expect::bool(false),
@@ -144,11 +145,15 @@ final class ConsoleExtension extends CompilerExtension
 			->addSetup('setCommandLoader', [$commandLoaderDefinition]);
 
 		if ($config->name !== null) {
-			$applicationDefinition->addSetup('setName', [$config->name]);
+			$applicationDefinition->addSetup('setName', [
+				new Literal("(string) (? ? 'UNKNOWN')", [$config->name, new Literal('??')]),
+			]);
 		}
 
 		if ($config->version !== null) {
-			$applicationDefinition->addSetup('setVersion', [$config->version]);
+			$applicationDefinition->addSetup('setVersion', [
+				new Literal("(string) (? ? 'UNKNOWN')", [$config->version, new Literal('??')]),
+			]);
 		}
 
 		$this->compiler->addExportedType($config->autowired);
