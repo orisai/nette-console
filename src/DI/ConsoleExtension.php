@@ -145,15 +145,37 @@ final class ConsoleExtension extends CompilerExtension
 			->addSetup('setCommandLoader', [$commandLoaderDefinition]);
 
 		if ($config->name !== null) {
-			$applicationDefinition->addSetup('setName', [
-				new Literal("(string) (? ? 'UNKNOWN')", [$config->name, new Literal('??')]),
-			]);
+			if ($config->name instanceof DynamicParameter) {
+				$applicationDefinition->addSetup('setName', [
+					new Literal(
+						"(string) (!in_array(?, [null, ''], true) ? ? : 'UNKNOWN')",
+						[
+							$config->name,
+							new Literal('?'),
+							$config->name,
+						],
+					),
+				]);
+			} else {
+				$applicationDefinition->addSetup('setName', [$config->name]);
+			}
 		}
 
 		if ($config->version !== null) {
-			$applicationDefinition->addSetup('setVersion', [
-				new Literal("(string) (? ? 'UNKNOWN')", [$config->version, new Literal('??')]),
-			]);
+			if ($config->version instanceof DynamicParameter) {
+				$applicationDefinition->addSetup('setVersion', [
+					new Literal(
+						"(string) (!in_array(?, [null, ''], true) ? ? : 'UNKNOWN')",
+						[
+							$config->version,
+							new Literal('?'),
+							$config->version,
+						],
+					),
+				]);
+			} else {
+				$applicationDefinition->addSetup('setVersion', [(string) $config->version]);
+			}
 		}
 
 		$this->compiler->addExportedType($config->autowired);

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.4.0...HEAD)
 
+### Fixed
+
+- `ConsoleExtension` - `name` and `version` - fix dynamic parameters for older nette/di and optimize setting non-dynamic parameters.
+
 ## [1.4.0](https://github.com/orisai/nette-console/compare/1.3.1...1.4.0) - 2023-10-14
 
 ### Added
