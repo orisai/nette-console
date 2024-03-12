@@ -38,9 +38,9 @@ final class ConsoleRequestFactory extends RequestFactory
 	{
 		return new Request(
 			new UrlScript($this->getUrl()),
-			null,
-			null,
-			null,
+			[],
+			[],
+			[],
 			$this->headers,
 		);
 	}

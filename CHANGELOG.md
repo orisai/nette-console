@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.4.1...HEAD)
 
+### Fixed
+
+- Compatibility with `nette/http:3.3.0`
+
 ## [1.4.1](https://github.com/orisai/nette-console/compare/1.4.0...1.4.1) - 2023-10-18
 
 ### Fixed
