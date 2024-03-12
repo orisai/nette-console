@@ -9,13 +9,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand;
 use Tests\OriNette\Console\Doubles\SimpleCommand;
 use Tests\OriNette\Console\Doubles\UrlPrintingCommand;
-use function array_map;
-use function explode;
-use function implode;
-use function preg_replace;
+use Tests\OriNette\Console\Helpers\CommandOutputHelper;
 use function putenv;
-use function rtrim;
-use const PHP_EOL;
 use const PHP_VERSION_ID;
 
 final class CommandsDebugCommandTest extends TestCase
@@ -50,7 +45,7 @@ MSG,
 		$tester = new CommandTester($command);
 
 		putenv('COLUMNS=80');
-		$code = $tester->execute([]);
+		$tester->execute([]);
 
 		if (PHP_VERSION_ID < 8_01_00) {
 			self::markTestSkipped('Printing of X acts weird on PHP < 8.1');
@@ -69,15 +64,9 @@ MSG;
 
 		self::assertSame(
 			$expected,
-			implode(
-				PHP_EOL,
-				array_map(
-					static fn (string $s): string => rtrim($s),
-					explode(PHP_EOL, preg_replace('~\R~u', PHP_EOL, $tester->getDisplay())),
-				),
-			),
+			CommandOutputHelper::getCommandOutput($tester),
 		);
-		self::assertSame($command::FAILURE, $code);
+		self::assertSame($command::FAILURE, $tester->getStatusCode());
 	}
 
 }
