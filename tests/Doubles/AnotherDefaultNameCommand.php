@@ -9,12 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class AnotherDefaultNameCommand extends Command
 {
 
-	/**
-	 * @var string|null
-	 *
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-	 */
-	protected static $defaultName = 'another-default';
+	public static function getDefaultName(): string
+	{
+		return 'another-default';
+	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{

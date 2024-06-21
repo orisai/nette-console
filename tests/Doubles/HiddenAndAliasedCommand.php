@@ -9,12 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class HiddenAndAliasedCommand extends Command
 {
 
-	/**
-	 * @var string|null
-	 *
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-	 */
-	protected static $defaultName = '|i|am|hiding|aliasses';
+	public static function getDefaultName(): string
+	{
+		return '|i|am|hiding|aliasses';
+	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{

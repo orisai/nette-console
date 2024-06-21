@@ -9,19 +9,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class DefaultBothCommand extends Command
 {
 
-	/**
-	 * @var string|null
-	 *
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-	 */
-	protected static $defaultName = 'both-default';
+	public static function getDefaultName(): string
+	{
+		return 'both-default';
+	}
 
-	/**
-	 * @var string|null
-	 *
-	 * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-	 */
-	protected static $defaultDescription = 'Default description';
+	public static function getDefaultDescription(): string
+	{
+		return 'Default description';
+	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
