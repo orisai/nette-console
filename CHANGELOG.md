@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.4.2...v1.x)
 
+### Added
+
+- Allow PHP 8.3
+
 ## [1.4.2](https://github.com/orisai/nette-console/compare/1.4.1...1.4.2) - 2024-03-12
 
 ### Fixed
