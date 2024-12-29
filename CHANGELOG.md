@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.4.3...v1.x)
 
+- Composer
+	- Allow PHP 8.4
+
 ## [1.4.3](https://github.com/orisai/nette-console/compare/1.4.2...1.4.3) - 2024-06-21
 
-### Added
+### Changed
 
-- Allow PHP 8.3
-- Allow symfony/console and symfony/event-dispatcher ^7.0.0
+- Composer
+	- Allow PHP 8.3
+	- Allow symfony/console and symfony/event-dispatcher ^7.0.0
 
 ## [1.4.2](https://github.com/orisai/nette-console/compare/1.4.1...1.4.2) - 2024-03-12
 
