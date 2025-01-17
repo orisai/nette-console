@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE neon PUBLIC "-//NEON//Neon plugin XML V0.0.1//EN" "../.idea/intellij-neon-pro/xmlSources/Neon.xsd">
+<neon vendor="orisai/nette-console" version="1">
+	<extensions>
+		<extension type="OriNette\Console\DI\ConsoleExtension">
+			<schema>
+				<structure>
+					<field name="autowired" default="Symfony\Component\Console\Application">
+						<string/>
+					</field>
+					<field name="catchException" default="false">
+						<bool/>
+					</field>
+					<field name="name" default="null">
+						<string/>
+						<null/>
+					</field>
+					<field name="di">
+						<structure>
+							<field name="parameters">
+								<structure>
+									<field name="backup" default="false">
+										<bool/>
+									</field>
+								</structure>
+							</field>
+						</structure>
+					</field>
+					<field name="discovery">
+						<structure>
+							<field name="tag" default="null">
+								<string/>
+								<null/>
+							</field>
+						</structure>
+					</field>
+					<field name="http">
+						<structure>
+							<field name="override" default="false">
+								<bool/>
+							</field>
+							<field name="url" default="null">
+								<string/>
+								<null/>
+							</field>
+							<field name="headers" default="['user-agent' => 'orisai/nette-console']">
+								<arrayOf>
+									<key>
+										<string/>
+									</key>
+									<value>
+										<string/>
+										<null/>
+									</value>
+								</arrayOf>
+							</field>
+						</structure>
+					</field>
+				</structure>
+			</schema>
+			<services>
+				<service name="application" type="Symfony\Component\Console\Application"/>
+				<service name="command.diParameters" type="OriNette\Console\Command\DIParametersCommand"/>
+				<service name="command.commandsDebug" type="OriNette\Console\Command\CommandsDebugCommand"/>
+			</services>
+		</extension>
+	</extensions>
+</neon>
