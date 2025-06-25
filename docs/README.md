@@ -45,10 +45,31 @@ Create an entrypoint for console
 It's a script similar to `www/index.php`, it just gets `Symfony\Component\Console\Application` from DI container and
 runs it.
 
-Create a file called `bin/console` and make sure it is executable - `touch bin/console && chmod +x bin/console`. After
-that just copy and paste one of following snippets into the file.
+Create a file called `bin/console` and make sure it is executable - `touch bin/console && chmod +x bin/console`.
+To commit executable permission to git, use `git update-index --chmod=+x bin/console`.
+After that copy and paste one of following snippets into the file.
 
-For Nette 3.0+ [web-project](https://github.com/nette/web-project) structure, it should look like this:
+<details open>
+	<summary>For <a href="https://github.com/nette/web-project">nette/web-project</a> 3.3+ structure</summary>
+
+```php
+#!/usr/bin/env php
+<?php declare(strict_types = 1);
+
+use App\Bootstrap;
+use Symfony\Component\Console\Application;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$bootstrap = new Bootstrap();
+$container = $bootstrap->bootWebApplication();
+$application = $container->getByType(Application::class);
+exit($application->run());
+```
+</details>
+
+<details>
+	<summary>Nette 3.0 - 3.2</summary>
 
 ```php
 #!/usr/bin/env php
@@ -64,8 +85,10 @@ $container = $configurator->createContainer();
 $application = $container->getByType(Application::class);
 exit($application->run());
 ```
+</details>
 
-For structure of Nette <=2.4:
+<details>
+	<summary>Nette <= 2.4</summary>
 
 ```php
 #!/usr/bin/env php
@@ -78,6 +101,7 @@ $container = require __DIR__ . '/../app/bootstrap.php';
 $application = $container->getByType(Application::class);
 exit($application->run());
 ```
+</details>
 
 Now you should be able to run console via `php bin/console`. In most of the environments should also work `bin/console`.
 
