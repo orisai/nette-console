@@ -1,11 +1,49 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Console\\\\\\\\Application' and Symfony\\\\Component\\\\Console\\\\Application will always evaluate to true\\.$#"
+			message: '''
+				#^Call to deprecated method getDefaultName\(\) of class OriNette\\Console\\Command\\CommandsDebugCommand\:
+				since Symfony 7\.3, use the \#\[AsCommand\] attribute instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: ../tests/Unit/DI/ConsoleExtensionTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method getDefaultName\(\) of class OriNette\\Console\\Command\\DIParametersCommand\:
+				since Symfony 7\.3, use the \#\[AsCommand\] attribute instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: ../tests/Unit/DI/ConsoleExtensionTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method getDefaultName\(\) of class Tests\\OriNette\\Console\\Doubles\\DefaultNameCommand\:
+				since Symfony 7\.3, use the \#\[AsCommand\] attribute instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: ../tests/Unit/DI/ConsoleExtensionTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method getDefaultName\(\) of class Tests\\OriNette\\Console\\Doubles\\UrlPrintingCommand\:
+				since Symfony 7\.3, use the \#\[AsCommand\] attribute instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 3
+			path: ../tests/Unit/DI/ConsoleExtensionTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Symfony\\\\Component\\\\Console\\\\Application'' and Symfony\\Component\\Console\\Application will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
 			count: 6
 			path: ../tests/Unit/DI/ConsoleExtensionTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Tests\\\\\\\\OriNette\\\\\\\\Console\\\\\\\\Doubles\\\\\\\\CustomApplication' and Tests\\\\OriNette\\\\Console\\\\Doubles\\\\CustomApplication will always evaluate to true\\.$#"
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Tests\\\\OriNette\\\\Console\\\\Doubles\\\\CustomApplication'' and Tests\\OriNette\\Console\\Doubles\\CustomApplication will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
 			count: 1
 			path: ../tests/Unit/DI/ConsoleExtensionTest.php
