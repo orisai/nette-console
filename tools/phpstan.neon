@@ -23,6 +23,11 @@ parameters:
 			- Orisai\Exceptions\Check\CheckedException
 
 	ignoreErrors:
+		# Internal classes in tests
+		-
+			message: '#(.+)internal(.+)OriNette(.+)#'
+			path: ../tests
+
 		# Hard to solve, minimal impact
 		-
 			message: '#^Method (.+)getNames\(\) should return array\<string\> but returns array\<int, int\|string\>\.$#'
