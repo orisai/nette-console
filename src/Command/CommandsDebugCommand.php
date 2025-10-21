@@ -50,8 +50,8 @@ final class CommandsDebugCommand extends Command
 		$table->addRow(['Name', 'Description', 'Service name', 'Service type']);
 		foreach ($this->commands as [$service, $type, $name, $description]) {
 			$table->addRow([
-				$name ? '<fg=green>✔️</>' : '<fg=red>❌</>',
-				$description ? '<fg=green>✔️</>' : '<fg=red>❌</>',
+				$name ? '<fg=green>✔</>' : '<fg=red>❌</>',
+				$description ? '<fg=green>✔</>' : '<fg=red>❌</>',
 				$service,
 				$type,
 			]);

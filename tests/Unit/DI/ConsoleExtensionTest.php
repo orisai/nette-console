@@ -631,12 +631,12 @@ MSG);
 Following commands are missing ❌ either name or description. Check orisai/nette-console documentation about lazy loading to learn how to fix it.
 
 Name Description Service name                     Service type
-✔️   ❌          command.defaultName              Tests\OriNette\Console\Doubles\DefaultNameCommand
-✔️   ❌          command.tagged.name.a            Tests\OriNette\Console\Doubles\SimpleCommand
-✔️   ❌          command.tagged.name.b            Tests\OriNette\Console\Doubles\SimpleCommand
-✔️   ❌          command.tagged.name.c            Tests\OriNette\Console\Doubles\SimpleCommand
-✔️   ❌          command.hiddenAndAliased.negated Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand
-❌   ✔️          command.notLazy                  Symfony\Component\Console\Command\Command
+✔    ❌          command.defaultName              Tests\OriNette\Console\Doubles\DefaultNameCommand
+✔    ❌          command.tagged.name.a            Tests\OriNette\Console\Doubles\SimpleCommand
+✔    ❌          command.tagged.name.b            Tests\OriNette\Console\Doubles\SimpleCommand
+✔    ❌          command.tagged.name.c            Tests\OriNette\Console\Doubles\SimpleCommand
+✔    ❌          command.hiddenAndAliased.negated Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand
+❌   ✔           command.notLazy                  Symfony\Component\Console\Command\Command
 
 MSG;
 

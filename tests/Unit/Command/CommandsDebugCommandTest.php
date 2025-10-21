@@ -55,9 +55,9 @@ MSG,
 Following commands are missing ❌ either name or description. Check orisai/nette-console documentation about lazy loading to learn how to fix it.
 
 Name Description Service name Service type
-✔️   ❌          service1     Tests\OriNette\Console\Doubles\UrlPrintingCommand
-❌   ✔️          service2     Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand
-✔️   ✔️          service3     Tests\OriNette\Console\Doubles\SimpleCommand
+✔    ❌          service1     Tests\OriNette\Console\Doubles\UrlPrintingCommand
+❌   ✔           service2     Tests\OriNette\Console\Doubles\HiddenAndAliasedCommand
+✔    ✔           service3     Tests\OriNette\Console\Doubles\SimpleCommand
 ❌   ❌          service3     Symfony\Component\Console\Command\Command
 
 MSG;

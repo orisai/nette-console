@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/orisai/nette-console/compare/1.4.5...v1.x)
 
+### Fixed
+
+- `CommandsDebugCommand` - column with the checkmark emoji is correctly aligned (was bugged with symfony/console 7.3.1+, 7.2.8+, 6.4.23+)
+
 ## [1.4.5](https://github.com/orisai/nette-console/compare/1.4.4...1.4.5) - 2025-01-17
 
 ### Added
