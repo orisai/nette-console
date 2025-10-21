@@ -14,6 +14,9 @@ final class SimpleCommand extends Command
 		parent::__construct();
 	}
 
+	/**
+	 * @throws void
+	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		return 0;

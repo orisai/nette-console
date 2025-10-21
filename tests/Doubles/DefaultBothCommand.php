@@ -19,6 +19,9 @@ final class DefaultBothCommand extends Command
 		return 'Default description';
 	}
 
+	/**
+	 * @throws void
+	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		return 0;

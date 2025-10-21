@@ -37,6 +37,9 @@ final class UrlPrintingCommand extends Command
 		$this->addOption('option');
 	}
 
+	/**
+	 * @throws void
+	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$output->write((string) $this->request->getUrl());

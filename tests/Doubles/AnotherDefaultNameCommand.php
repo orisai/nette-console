@@ -14,6 +14,9 @@ final class AnotherDefaultNameCommand extends Command
 		return 'another-default';
 	}
 
+	/**
+	 * @throws void
+	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		return 0;

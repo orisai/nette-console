@@ -14,6 +14,9 @@ final class HiddenAndAliasedCommand extends Command
 		return '|i|am|hiding|aliasses';
 	}
 
+	/**
+	 * @throws void
+	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		return 0;
